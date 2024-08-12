@@ -1,0 +1,100 @@
+﻿@model SIS_Dev.Models.Department
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #form-container {
+            width: 30%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px gray;
+            position: absolute;
+            top: 45%;
+            left: 57%;
+            transform: translate(-50%, -50%);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background-color: blue;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .btn-primary:hover {
+                background-color: #000;
+            }
+
+        .text-danger {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="form-container">
+    <form method="post" asp-action="Create" asp-controller="Department" >
+        <h2 >
+            ADD DEPARTMENT
+        </h2>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-group">
+            <label asp-for="DName">Name</label>
+            <input asp-for="DName" class="form-control" />
+            <span asp-validation-for="DName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Code">Code</label>
+            <input type="" asp-for="Code" class="form-control" />
+            <span asp-validation-for="Code" class="text-danger"></span>
+        </div>        
+        <br />
+
+        <button type="submit" class="btn btn-primary">ADD</button>
+    </form>
+    </div>
+</body>
+
+</html>
+
+

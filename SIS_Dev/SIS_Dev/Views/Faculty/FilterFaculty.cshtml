@@ -1,0 +1,117 @@
+﻿ @model IEnumerable<SIS_Dev.Models.Faculty>
+
+@{
+    ViewData["Title"] = "Faculty";
+    var institutes = ViewBag.Institutes as Dictionary<int, string>;
+    var courses = ViewBag.Courses as Dictionary<int, string>;
+    var standards = ViewBag.Standards as Dictionary<int, string>;
+    var subjects = ViewBag.Subjects as Dictionary<int, string>;
+    var years = ViewBag.Years as List<string>;
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Head content omitted for brevity -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            if (successMessage) {
+                alert(successMessage);
+            }
+        });
+    </script>
+
+</head>
+<body>
+    <h1>Faculty List</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </p>
+
+    <div class="table-responsive">
+
+        <table class="table table-striped table-bordered" id="v">
+            <thead class="thead-dark">
+                <tr>
+
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Institute</th>
+                    <th>Course</th>
+                    <th>Standard</th>
+                    <th>Subject</th>
+                    <th>Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var faculty in Model)
+                    {
+                    <tr>
+
+                        <td>@faculty.FirstName</td>
+                        <td>@faculty.LastName</td>
+                        <td>@faculty.Email</td>
+                        <td>@ViewBag.Institutes[faculty.InstituteID]</td>
+
+                        <td>
+                            @if (courses != null && courses.ContainsKey(faculty.CourseID))
+                                {
+                                @courses[faculty.CourseID]
+                                }
+                            else
+                                {
+                                <span class="text-danger">Course not found</span>
+                                }
+                        </td>
+
+                        <td>
+                            @if (standards != null && standards.ContainsKey(faculty.StandardID))
+                                {
+                                @standards[faculty.StandardID]
+                                }
+                            else
+                                {
+                                <span class="text-danger">Standard not found</span>
+                                }
+                        </td>
+                        <td>
+                            @if (subjects != null && subjects.ContainsKey(faculty.SubjectID))
+                                {
+                                @subjects[faculty.SubjectID]
+                                }
+                            else
+                                {
+                                <span class="text-danger">Subject not found</span>
+                                }
+                        </td>
+                        <td>@faculty.Year</td>
+
+                     
+                    </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    <!-- JavaScript to handle popup display -->
+    <script>
+        setTimeout(function () {
+            $('.alert').fadeOut('fast');
+        }, 3000); // 3 seconds
+    </script>
+    @section Scripts {
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#v').DataTable();
+            });
+        </script>
+    }
+
+</body>
+</html>
+

@@ -1,0 +1,73 @@
+﻿@model SIS_Dev.Models.Leave
+
+@{
+    ViewData["Title"] = "Edit Leave";
+}
+
+<h1>Edit Leave</h1>
+
+<h4>Leave</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="LeaveID" />
+            <div class="form-group">
+                <label asp-for="StudentID" class="control-label"></label>
+                <input asp-for="StudentID" class="form-control" readonly />
+                <span asp-validation-for="StudentID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartDate" class="control-label"></label>
+                <input asp-for="StartDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label"></label>
+                <input asp-for="EndDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Reason" class="control-label"></label>
+                <textarea asp-for="Reason" class="form-control"></textarea>
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FacultyID" class="control-label"></label>
+                <select asp-for="FacultyID" class="form-control" asp-items="ViewBag.FacultyID"></select>
+                <span asp-validation-for="FacultyID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubjectID" class="control-label"></label>
+                <select asp-for="SubjectID" class="form-control" asp-items="ViewBag.SubjectID"></select>
+                <span asp-validation-for="SubjectID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LeaveType" class="control-label"></label>
+                <select asp-for="LeaveType" class="form-control">
+                    <option value="Full Day">Full Day</option>
+                    <option value="Half Day">Half Day</option>
+                </select>
+                <span asp-validation-for="LeaveType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" readonly />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

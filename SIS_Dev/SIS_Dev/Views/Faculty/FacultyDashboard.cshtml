@@ -1,0 +1,78 @@
+﻿@model List<SIS_Dev.Models.Timetable>
+
+@{
+    ViewData["Title"] = "Timetables";
+    var daysOfWeek = new[] { "monday", "tuesday", "wednesday", "thursday", "friday", "saturday" };
+    var timeSlots = Model.Select(t => new { t.StartTime, t.EndTime }).Distinct().OrderBy(t => t.StartTime).ToList();
+}
+
+<h2>Timetables</h2>
+<br />
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Time Slot</th>
+            @foreach (var day in daysOfWeek)
+            {
+                <th>@day</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var slot in timeSlots)
+        {
+            <tr>
+                <td>@slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")</td>
+                @foreach (var day in daysOfWeek)
+                {
+                    <td>
+                        @{
+                            var items = Model.Where(t => t.Days.Equals(day, StringComparison.OrdinalIgnoreCase) && t.StartTime == slot.StartTime && t.EndTime == slot.EndTime)
+                            .GroupBy(t => new { t.SubjectID, t.CourseID, t.StandardID, t.StartTime, t.EndTime })
+                            .Select(g => g.First())
+                            .ToList();
+
+                            if (items.Any())
+                            {
+                                foreach (var item in items)
+                                {
+                                    <div>
+                                        <strong>Subject:</strong> @GetSubjectName(item.SubjectID)<br />
+                                        @Html.ActionLink("Take Attendance", "StudentList", "Faculty", new { courseId = item.CourseID, standardId = item.StandardID, subjectId = item.SubjectID }, new { @class = "btn btn-primary btn-sm" })
+
+                                    </div>
+                                }
+                            }
+
+                         
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    public string GetCourseName(int courseId)
+    {
+        var courses = ViewData["Courses"] as List<SIS_Dev.Models.Course>;
+        var course = courses?.FirstOrDefault(c => c.CourseID == courseId);
+        return course != null ? course.Name : "Course Not Found";
+    }
+
+    public string GetFacultyName(int facultyId)
+    {
+        var faculties = ViewData["Faculties"] as List<SIS_Dev.Models.Faculty>;
+        var faculty = faculties?.FirstOrDefault(f => f.FacultyID == facultyId);
+        return faculty != null ? faculty.FirstName : "Faculty Not Found";
+    }
+
+    public string GetSubjectName(int subjectId)
+    {
+        var subjects = ViewData["Subjects"] as List<SIS_Dev.Models.Subject>;
+        var subject = subjects?.FirstOrDefault(s => s.SubjectID == subjectId);
+        return subject != null ? subject.SubjectName : "Subject Not Found";
+    }
+}

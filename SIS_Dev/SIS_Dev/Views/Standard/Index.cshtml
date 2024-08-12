@@ -1,0 +1,77 @@
+﻿
+@model IEnumerable<SIS_Dev.Models.Standard>
+
+@{
+    ViewData["Title"] = "Standards Index";
+    var institutes = ViewBag.Institutes as Dictionary<int, string>;
+    var courses = ViewBag.Courses as Dictionary<int, string>;
+    var years = ViewBag.Years as List<string>;
+
+}
+
+<h1>Standards Index</h1>
+<p>
+    <!-- Create button and Filter form aligned horizontally -->
+    <div class="d-flex justify-content-between align-items-center">
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+        <form method="get" asp-action="FilterStandard" class="form-inline">
+            <div class="form-group mr-2">
+                <label for="InstituteID" class="mr-2">Institute</label>
+                <select id="InstituteID" name="InstituteID" class="form-control">
+                    <option value="">Select Institute</option>
+                    @foreach (var institute in institutes)
+                        {
+                        <option value="@institute.Key">@institute.Value</option>
+                        }
+                </select>
+            </div>
+            <div class="form-group mx-2">
+                <label for="Year" class="mr-2">Year</label>
+                <select id="Year" name="Year" class="form-control">
+                    <option value="">Select Year</option>
+                    @foreach (var year in years)
+                        {
+                        <option value="@year">@year</option>
+                        }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+    </div>
+</p><!-- Table to display standards -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Standard Name</th>
+            
+            <th>Institute</th>
+            <th>Course</th>
+            <th>Year</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var standard in Model)
+            {
+            <tr>
+                <td>@standard.StandardName</td>
+                <td>@ViewBag.Institutes[standard.InstituteID]</td>
+                <td>
+                    @if (courses != null && courses.ContainsKey(standard.CourseID))
+                        {
+                        @courses[standard.CourseID]
+                        }
+                    else
+                        {
+                        <span class="text-danger">Course not found</span>
+                        }
+                </td>
+                <td>@standard.Year</td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = standard.StandardID })" class="btn btn-warning">Edit</a>
+                    <a href="@Url.Action("Delete", new { id = standard.StandardID })" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>

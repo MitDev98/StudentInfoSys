@@ -175,3 +175,9 @@ clientbin/
 *.pidb1
 *.pidb2
 *.localhistory
+SIS_Dev/SIS_Dev/obj/
+SIS_Dev/obj/Debug/
+/SIS_Dev/SIS_Dev/obj/SIS_Dev.csproj.nuget.dgspec.json
+/SIS_Dev/SIS_Dev/obj/SIS_Dev.csproj.nuget.g.props
+/SIS_Dev/SIS_Dev/obj/project.assets.json
+/SIS_Dev/SIS_Dev/obj/project.nuget.cache

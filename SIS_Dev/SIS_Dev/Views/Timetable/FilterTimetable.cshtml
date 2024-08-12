@@ -1,0 +1,59 @@
+﻿@model List<SIS_Dev.Models.TimetableViewModel>
+
+@{
+    ViewData["Title"] = "Timetables";
+    var institutes = (Dictionary<int, string>)ViewBag.Institutes;
+    var years = ViewBag.Years as List<string>;
+
+}
+
+<h2>Timetables</h2>
+<body>
+   
+  
+    <table class="table" id="v">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Faculty Name</th>
+                <th>Subject Name</th>
+                <th>Standard</th>
+                <th>Days</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Institute</th>
+                <th>Year</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+                {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.CourseName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.FacultyName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.SubjectName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.StandardName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Days)</td>
+                    <td>@item.StartTime.ToString(@"hh\:mm")</td>
+                    <td>@item.EndTime.ToString(@"hh\:mm")</td>
+                    <td>@item.Name</td>
+                    <td>@item.Year</td>
+
+                    
+                </tr>
+                }
+        </tbody>
+    </table>
+
+   
+
+    @section Scripts {
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#v').DataTable();
+            });
+        </script>
+    }
+</body>

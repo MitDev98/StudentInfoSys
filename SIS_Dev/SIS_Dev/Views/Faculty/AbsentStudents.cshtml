@@ -1,0 +1,120 @@
+﻿@* @model List<AttendanceViewModel>
+
+@{
+    ViewData["Title"] = "Attendance List";
+}
+
+<br />
+<h2>Attendance List for @Model.FirstOrDefault()?.SubjectName</h2> <!-- Adjusted here to access SubjectName from the first item -->
+
+<br />
+
+@if (ViewBag.Message != null)
+    {
+    <div class="alert alert-info">
+        @ViewBag.Message
+    </div>
+    }
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Present</th>
+            <th>Absent</th>
+            <th>Total Students</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="color: green; font-weight: bold;">@Model.Count(a => a.Status)</td> <!-- Green color and bold text for present students -->
+            <td style="color: red; font-weight: bold;">@Model.Count(a => !a.Status)</td> <!-- Red color and bold text for absent students -->
+            <td style="color: blue; font-weight: bold;">@Model.Count</td> <!-- Blue color and bold text for total count -->
+        
+            <td>
+                <button class="btn btn-primary editAttendance" data-url="@Url.Action("EditAttendance", "Faculty", new { attendanceId = Model.FirstOrDefault()?.AttendanceID })">Edit</button>
+            </td>
+
+            
+          
+        </tr>
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.editAttendance').on('click', function () {
+                var url = $(this).data('url');
+                window.location.href = url;
+            });
+        });
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+ *@
+
+
+               @model List<AttendanceViewModel>
+
+@{
+    ViewData["Title"] = "Attendance List";
+}
+
+<br />
+<h2>Attendance List for @Model.FirstOrDefault()?.SubjectName</h2> <!-- Adjusted here to access SubjectName from the first item -->
+
+<br />
+
+@if (ViewBag.Message != null)
+    {
+    <div class="alert alert-info">
+        @ViewBag.Message
+    </div>
+    }
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>@item.StudentFirstName @item.StudentLastName</td>
+                <td style="color: @(item.Status ? "green" : "red"); font-weight: bold;">@(item.Status ? "Present" : "Absent")</td>
+                <td>
+                    <button class="btn btn-primary editAttendance" data-url="@item.EditUrl">Edit</button>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.editAttendance').on('click', function () {
+                var url = $(this).data('url');
+                window.location.href = url;
+            });
+        });
+    </script>
+}

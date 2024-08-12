@@ -1,0 +1,73 @@
+﻿@model IEnumerable<SIS_Dev.Models.Department>
+
+@{
+    ViewData["Title"] = "Department";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Head content omitted for brevity -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            if (successMessage) {
+                alert(successMessage);
+            }
+        });
+    </script>
+
+</head>
+<body>
+<h2>Departments List</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+    <div class="table-responsive">
+
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+        <tr>
+           
+            <th>
+               Department Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Code)
+            </th>
+            
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+               
+                <td>
+                    @Html.DisplayFor(modelItem => item.DName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Code)
+                </td>
+             
+                <td>
+                        <a asp-action="Edit" asp-route-id="@item.DID" asp-controller="Department" class="btn btn-warning btn-sm ">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@item.DID" asp-controller="Department" class="btn btn-danger btn-sm ">Remove</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+    <!-- JavaScript to handle popup display -->
+    <script>
+        setTimeout(function () {
+            $('.alert').fadeOut('fast');
+        }, 3000); // 3 seconds
+    </script>
+</body>
+</html>

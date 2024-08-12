@@ -1,0 +1,202 @@
+﻿@* @model SIS_Dev.Models.AssessmentResultsViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .a-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+
+            .a-table th, .a-table td {
+                padding: 12px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .a-table th {
+                background-color: #f2f2f2;
+            }
+    </style>
+</head>
+<body>
+    <br />
+
+    <h2>Assessment Results</h2>
+
+    <table class="a-table">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Obtained Marks</th>
+                <th>Remark</th>
+                <th>Attendance</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in Model.AssessmentResults)
+                {
+                <tr>
+                    <td>@result.StudentID</td>
+                    <td>
+                        @{
+                            var student = Model.Students.FirstOrDefault(s => s.StudentID == result.StudentID);
+                            if (student != null)
+                                {
+                                @student.FirstName @:&nbsp;@student.LastName
+                                }
+                        }
+                    </td>
+                    <td>@(result.Absent ? "-" : result.ObtainedMarks.ToString())</td>
+                    <td>@(result.Absent ? "-" : result.Remark)</td>
+                    <td>
+                        @if (result.Absent)
+                            {
+                            <span style="color: red;"><b>AB</b></span>
+                            }
+                        else
+                            {
+                            <span style="color:green;"><b>P</b></span>
+                            }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("EditAssessmentResult","Faculty", new { id = result.AssessmentResultID })" class="btn btn-warning">Edit</a>
+                         <a href="@Url.Action("Delete", "AssessmentResult", new { id = result.AssessmentResultID })" class="btn btn-dark">Delete</a> 
+                    </td>
+                </tr>
+                }
+        </tbody>
+    </table>
+</body>
+</html>
+ *@
+
+@model SIS_Dev.Models.AssessmentResultsViewModel
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .a-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+
+            .a-table th, .a-table td {
+                padding: 12px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .a-table th {
+                background-color: #f2f2f2;
+            }
+
+        .statistics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+
+            .statistics-table th, .statistics-table td {
+                padding: 12px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .statistics-table th {
+                background-color: #f2f2f2;
+            }
+    </style>
+</head>
+<body>
+    <br />
+
+    <h2>Assessment Results</h2>
+
+@*     <table class="statistics-table">
+        <thead>
+            <tr>
+                <th>Total Students</th>
+                <th>Passed</th>
+                <th>Failed</th>
+                <th>Absent</th>
+                <th>Average Marks</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.TotalStudents</td>
+                <td>@Model.TotalPassed</td>
+                <td>@Model.TotalFailed</td>
+                <td>@Model.TotalAbsent</td>
+                <td>@Model.AverageMarks</td>
+            </tr>
+        </tbody>
+    </table> *@
+
+    <table class="a-table">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Obtained Marks</th>
+                <th>Remark</th>
+                <th>Attendance</th>
+                <th>Marks Category</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in Model.AssessmentResults)
+                {
+                <tr>
+                    <td>@result.StudentID</td>
+                    <td>
+                        @{
+                            var student = Model.Students.FirstOrDefault(s => s.StudentID == result.StudentID);
+                            if (student != null)
+                                {
+                                @student.FirstName @:@student.LastName
+                                }
+                        }
+                    </td>
+                    <td>@(result.Absent ? "-" : result.ObtainedMarks.ToString())</td>
+                    <td>@(result.Absent ? "-" : result.Remark)</td>
+                    <td>
+                        @if (result.Absent)
+                            {
+                            <span style="color: red;"><b>AB</b></span>
+                            }
+                        else
+                            {
+                            <span style="color:green;"><b>P</b></span>
+                            }
+                    </td>
+                    <td>
+                        @if (!result.Absent)
+                            {
+                            @Model.GetMarksCategory(result.ObtainedMarks)
+                            }
+                        else
+                            {
+                            <span>-</span>
+                            }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("EditAssessmentResult", "Faculty", new { id = result.AssessmentResultID })" class="btn btn-warning">Edit</a>
+                    </td>
+                </tr>
+                }
+        </tbody>
+    </table>
+</body>
+</html>
+
+

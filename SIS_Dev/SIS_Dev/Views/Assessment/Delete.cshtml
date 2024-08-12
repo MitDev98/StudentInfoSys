@@ -1,0 +1,202 @@
+﻿@model SIS_Dev.Models.Assessment
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #form-container {
+            width: 50%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px gray;
+            position: absolute;
+            top: 45%;
+            left: 57%;
+            transform: translate(-50%, -50%);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-danger {
+            width: 100%;
+            padding: 15px;
+            background-color: red;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #000;
+        }
+
+        .main {
+            display: flex;
+        }
+
+        .inner {
+            width: 600px;
+            padding: 15px;
+        }
+
+        .text-danger {
+            color: red;
+        }
+    </style>
+</head>
+
+<body class="abc">
+    <div id="form-container">
+        <form method="post" asp-action="Delete" asp-controller="Assessment">
+            <h2>
+                DELETE ASSESSMENT
+            </h2>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="main">
+                <div class="inner">
+                    <div class="form-group">
+                        <label class="control-label">Course</label>
+                        <select asp-for="CourseID" class="form-control" asp-items="ViewBag.CourseID" readonly></select>
+                        <span asp-validation-for="CourseID" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input asp-for="Date" class="form-control" type="date" readonly />
+                        <span asp-validation-for="Date" class="text-danger"></span>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label asp-for="TotalMarks">TotalMarks</label>
+                        <input asp-for="TotalMarks" class="form-control" readonly />
+                        <span asp-validation-for="TotalMarks" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AssessmentID">AssessmentID</label>
+                        <input asp-for="AssessmentID" class="form-control" readonly />
+                        <span asp-validation-for="AssessmentID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="inner">
+                    <div class="form-group">
+                        <label asp-for="StandardID">Standard</label>
+                        <select asp-for="StandardID" class="form-control" asp-items="ViewBag.StandardName" readonly></select>
+                        <span asp-validation-for="StandardID" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="StartTime">StartTime</label>
+                        <input asp-for="StartTime" class="form-control" type="time" readonly />
+                        <span asp-validation-for="StartTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PassingMarks">PassingMarks</label>
+                        <input asp-for="PassingMarks" class="form-control" readonly />
+                        <span asp-validation-for="PassingMarks" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="inner">
+                    <div class="form-group">
+                        <label class="control-label">Subject</label>
+                        <select asp-for="SubjectName" class="form-control" asp-items="ViewBag.SubjectName" readonly></select>
+                        <span asp-validation-for="SubjectName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EndTime">EndTime</label>
+                        <input asp-for="EndTime" class="form-control" type="time" readonly />
+                        <span asp-validation-for="EndTime" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="inner">
+                    <div class="form-group">
+                        <label class="control-label">Faculty</label>
+                        <select asp-for="FacultyID" class="form-control" asp-items="ViewBag.FacultyID" readonly></select>
+                        <span asp-validation-for="FacultyID" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-danger">DELETE</button>
+        </form>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#CourseID').change(function () {
+                var courseId = $(this).val();
+                var standardName = $('#StandardName').val();
+                $.ajax({
+                    url: '@Url.Action("GetSubjects", "Assessment")',
+                    type: 'GET',
+                    data: { courseId: courseId, standardName: standardName },
+                    success: function (data) {
+                        var options = '<option value="">Select Subject</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            options += '<option value="' + data[i].subjectName + '">' + data[i].subjectName + '</option>';
+                        }
+                        $('#SubjectName').html(options);
+                    }
+                });
+            });
+
+            $('#StandardName').change(function () {
+                var courseId = $('#CourseID').val();
+                var standardName = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetSubjects", "Assessment")',
+                    type: 'GET',
+                    data: { courseId: courseId, standardName: standardName },
+                    success: function (data) {
+                        var options = '<option value="">Select Subject</option>';
+                        for (var i = 0; i < data.length; i++) {
+                            options += '<option value="' + data[i].subjectName + '">' + data[i].subjectName + '</option>';
+                        }
+                        $('#SubjectName').html(options);
+                    }
+                });
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
+
+

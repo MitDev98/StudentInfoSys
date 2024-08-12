@@ -1,0 +1,37 @@
+﻿@model SIS_Dev.Models.AssessmentResult
+
+<h2>Edit Assessment Result</h2>
+
+<form asp-action="EditAssessmentResult">
+    <input type="hidden" asp-for="AssessmentResultID" />
+    <div class="form-group">
+        <label>Assessment Subject</label>
+        <select asp-for="AssessmentID" class="form-control" asp-items="ViewBag.AssessmentID" readonly></select>
+        <span asp-validation-for="AssessmentID" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Student Name</label>
+        <select asp-for="StudentID" class="form-control" asp-items="ViewBag.StudentID" readonly ></select>
+        <span asp-validation-for="StudentID" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ObtainedMarks"></label>
+        <input asp-for="ObtainedMarks" class="form-control" />
+        <span asp-validation-for="ObtainedMarks" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Remark"></label>
+        <input asp-for="Remark" class="form-control" />
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+    <div class="form-group form-check">
+        <input asp-for="Absent" class="form-check-input" />
+        <label asp-for="Absent" class="form-check-label">Absent</label>
+        <span asp-validation-for="Absent" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Created By</label>
+        <input asp-for="CreatedBy" class="form-control" readonly />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

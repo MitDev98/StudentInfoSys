@@ -1,0 +1,51 @@
+﻿@model List<SIS_Dev.Models.TimetableViewModel>
+
+@{
+    ViewData["Title"] = "Timetables";
+    var daysOfWeek = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+    var timeSlots = Model.Select(t => new { t.StartTime, t.EndTime }).Distinct().OrderBy(t => t.StartTime).ToList();
+    var selectedCourse = ViewBag.SelectedCourse as string;
+    var selectedStandard = ViewBag.SelectedStandard as string;
+}
+
+<h2>Timetables @(selectedCourse != null && selectedStandard != null ? $"({selectedCourse} - {selectedStandard})" : "")</h2>
+<br/>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Time Slot</th>
+            @foreach (var day in daysOfWeek)
+            {
+                <th>@day</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var slot in timeSlots)
+        {
+            <tr>
+                <td>@slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")</td>
+                @foreach (var day in daysOfWeek)
+                {
+                    <td>
+                        @{
+                            var items = Model.Where(t => t.Days.Equals(day, StringComparison.OrdinalIgnoreCase) && t.StartTime == slot.StartTime && t.EndTime == slot.EndTime)
+                            .GroupBy(t => new { t.SubjectName, t.FacultyName, t.StartTime, t.EndTime })
+                            .Select(g => g.First())
+                            .ToList();
+
+                            if (items.Any())
+                            {
+                                var combinedItems = string.Join("<br />", items.Select(item =>
+                                $"<strong>Subject:</strong> {item.SubjectName}<br /><strong>Faculty:</strong> {item.FacultyName}<br /><strong>Start Time:</strong> {item.StartTime.ToString(@"hh\:mm")}<br /><strong>End Time:</strong> {item.EndTime.ToString(@"hh\:mm")}")
+                                );
+                                @Html.Raw(combinedItems)
+                            }
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,79 @@
+﻿@model IEnumerable<SIS_Dev.Models.Course>
+@{
+    ViewBag.Title = "Courses";
+   // var institutes = (Dictionary<int, string>)ViewBag.Institutes;
+    var institutes = ViewBag.Institutes as Dictionary<int, string>;
+
+    var years = ViewBag.Years as List<string>;
+}
+
+<h2>Courses</h2>
+
+<p>
+    <!-- Create button and Filter form aligned horizontally -->
+    <div class="d-flex justify-content-between align-items-center">
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+        <form method="get" asp-action="FilterCourses" class="form-inline">
+            <div class="form-group mr-2">
+                <label for="InstituteID" class="mr-2">Institute</label>
+                <select id="InstituteID" name="InstituteID" class="form-control">
+                    <option value="">Select Institute</option>
+                    @foreach (var institute in institutes)
+                        {
+                        <option value="@institute.Key">@institute.Value</option>
+                        }
+                </select>
+            </div>
+            <div class="form-group mx-2">
+                <label for="Year" class="mr-2">Year</label>
+                <select id="Year" name="Year" class="form-control">
+                    <option value="">Select Year</option>
+                    @foreach (var year in years)
+                        {
+                        <option value="@year">@year</option>
+                        }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+    </div>
+</p>
+
+
+<table class="table" id="v">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Institute Name</th>
+            <th>Year</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>@item.Name</td>
+                <td>@ViewBag.Institutes[item.InstituteID]</td>
+                <td>@item.Year</td>
+                <td>
+                    <a asp-action="Edit" class="btn btn-warning" asp-route-id="@item.CourseID">Edit</a> |
+                    <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.CourseID">Delete</a>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>
+<script>
+    setTimeout(function () {
+        $('.alert').fadeOut('fast');
+    }, 3000); // 3 seconds
+</script>
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#v').DataTable();
+        });
+    </script>
+}

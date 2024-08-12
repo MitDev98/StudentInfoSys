@@ -1,0 +1,29 @@
+﻿@model AttendanceSummaryViewModel
+
+@{
+    ViewData["Title"] = "Edit Attendance Summary";
+}
+
+<h2>Edit Attendance Summary for @Model.SubjectName</h2>
+<br />
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Total Students</th>
+            <th>Present</th>
+            <th>Absent</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>@Model.TotalStudents</td>
+            <td>@Model.PresentCount</td>
+            <td>@Model.AbsentCount</td>
+        </tr>
+    </tbody>
+</table>
+
+@section Scripts {
+    // Any scripts needed for this view
+}

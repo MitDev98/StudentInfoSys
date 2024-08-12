@@ -1,0 +1,118 @@
+﻿
+@model List<SIS_Dev.Models.Student>
+
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+<h1>Attendance</h1>
+
+<form id="attendanceForm" method="post" asp-action="SubmitAttendance" asp-controller="Attendance">
+    <div class="form-group">
+        <label for="Courses">Select Course</label>
+        <select id="Courses" class="form-control">
+            <option value="">Select Course</option>
+            @foreach (var course in ViewBag.Courses)
+                {
+                <option value="@course.CourseID">@course.Name</option>
+                }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="Standards">Select Standard</label>
+        <select id="Standards" class="form-control">
+            <option value="">Select Standard</option>
+            @foreach (var standard in ViewBag.Standards)
+                {
+                <option value="@standard">@standard</option>
+                }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="Subjects">Select Subject</label>
+        <select id="Subjects" class="form-control">
+            <option value="">Select Subject</option>
+            <!-- Subjects will be dynamically loaded here -->
+        </select>
+    </div>
+
+    <div id="studentList">
+        <!-- Student list will be loaded dynamically here -->
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Attendance</button>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#Courses').change(function () {
+                var courseId = $('#Courses').val();
+
+                $.post('@Url.Action("GetSubjects", "Attendance")', { courseId: courseId })
+                    .done(function (data) {
+                        var subjectOptions = '<option value="">Select Subject</option>';
+                        $.each(data, function (i, subject) {
+                            subjectOptions += '<option value="' + subject.subjectID + '">' + subject.subjectName + '</option>';
+                        });
+                        $('#Subjects').html(subjectOptions);
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error('Error fetching subjects:', error);
+                    });
+
+                updateStudentList();
+            });
+
+            $('#Standards').change(function () {
+                updateStudentList();
+            });
+
+            $('#Subjects').change(function () {
+                updateStudentList();
+            });
+
+            function updateStudentList() {
+                var courseId = $('#Courses').val();
+                var standard = $('#Standards').val();
+                var subjectId = $('#Subjects').val();
+                var subjectName = $('#Subjects option:selected').text();
+
+                if (courseId && standard) {
+                    $.post('@Url.Action("GetStudents", "Attendance")', { courseId: courseId, standard: standard })
+                        .done(function (data) {
+                            var studentsHtml = '<table class="table">';
+                            studentsHtml += '<thead><tr><th>First Name</th><th>Last Name</th><th>Subject</th><th>Date</th><th>Start Time</th><th>End Time</th><th>Topic</th><th>Attendance</th></tr></thead>';
+                            studentsHtml += '<tbody>';
+
+                            $.each(data, function (i, student) {
+                                studentsHtml += '<tr>';
+                                studentsHtml += '<td>' + student.firstName + '</td>';
+                                studentsHtml += '<td>' + student.lastName + '</td>';
+                                studentsHtml += '<td>' + subjectName + '</td>';
+                                studentsHtml += '<td><input type="date" class="form-control" name="attendanceList[' + i + '].Date" required></td>';
+                                studentsHtml += '<td><input type="time" class="form-control" name="attendanceList[' + i + '].StartTime" required></td>';
+                                studentsHtml += '<td><input type="time" class="form-control" name="attendanceList[' + i + '].EndTime" required></td>';
+                                // studentsHtml += '<td><input type="number" class="form-control" name="attendanceList[' + i + '].FacultyID" required></td>';
+                                studentsHtml += '<td><input type="text" class="form-control" name="attendanceList[' + i + '].Topic"></td>';
+                                studentsHtml += '<td><input type="checkbox" class="form-check-input" name="attendanceList[' + i + '].IsPresent" value="true"></td>';
+                                studentsHtml += '<input type="hidden" name="attendanceList[' + i + '].StudentId" value="' + student.studentID + '">';
+                                studentsHtml += '<input type="hidden" name="attendanceList[' + i + '].SubjectName" value="' + subjectName + '">';
+                                studentsHtml += '</tr>';
+                            });
+
+                            studentsHtml += '</tbody></table>';
+                            $('#studentList').html(studentsHtml);
+                        })
+                        .fail(function (xhr, status, error) {
+                            console.error('Error fetching students:', error);
+                        });
+                } else {
+                    $('#studentList').html('');
+                }
+            }
+        });
+    </script>
+}

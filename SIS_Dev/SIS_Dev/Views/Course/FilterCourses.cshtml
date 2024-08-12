@@ -1,0 +1,40 @@
+﻿@model IEnumerable<SIS_Dev.Models.Course>
+
+@{
+    ViewBag.Title = "Filtered Courses";
+}
+
+<h2>Filtered Courses</h2>
+
+<p>
+    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+</p>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Institute Name</th>
+            <th>Year</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>@item.Name</td>
+                <td>@ViewBag.Institutes[item.InstituteID]</td>
+                <td>@item.Year</td>
+               
+            </tr>
+            }
+    </tbody>
+</table>
+
+<script>
+    setTimeout(function () {
+        $('.alert').fadeOut('fast');
+    }, 3000); // 3 seconds
+</script>

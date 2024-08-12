@@ -1,0 +1,239 @@
+﻿@model SIS_Dev.Models.Student
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #form-container {
+            width: 30%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px gray;
+            position: absolute;
+            top: 45%;
+            left: 57%;
+            transform: translate(-50%, -50%);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background-color: blue;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .btn-primary:hover {
+                background-color: #000;
+            }
+
+        .main {
+            display: flex;
+        }
+
+        .inner {
+            width: 600px;
+            padding: 5px;
+        }
+
+        .text-danger {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form-container">
+        <form method="post" asp-action="Create" asp-controller="Student">
+            <h2>
+              ADD  STUDENT
+            </h2>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="main">
+                <div class="inner">
+                   
+                    <div class="form-group">
+                        <label asp-for="FirstName" class="control-label"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Contactno" class="control-label"></label>
+                        <input asp-for="Contactno" class="form-control" />
+                        <span asp-validation-for="Contactno" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address" class="control-label"></label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CourseID" class="control-label">CourseName</label>
+                        <select asp-for="CourseID" class="form-control" asp-items="ViewBag.CourseID"></select>
+                        <span asp-validation-for="CourseID" class="text-danger"></span>
+                    </div>
+                </div>     
+                <div class="inner">
+                    <div class="form-group">
+                        <label asp-for="LastName" class="control-label"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DOB" class="control-label"></label>
+                        <input asp-for="DOB" class="form-control" type="date" />
+                        <span asp-validation-for="DOB" class="text-danger"></span>
+                    </div>
+                  
+                    <div class="form-group">
+                        <label asp-for="Pincode" class="control-label"></label>
+                        <input asp-for="Pincode" class="form-control" />
+                        <span asp-validation-for="Pincode" class="text-danger"></span>
+                    </div>                  
+                
+                    <div class="form-group">
+                        <label>Standard</label>
+                        <select id="StandardID" name="StandardID" class="form-control" asp-items="ViewBag.StandardID"></select>
+                        <span asp-validation-for="StandardID" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="inner">
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" type="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" type="password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Institute</label>
+                        <select asp-for="InstituteID" class="form-control" asp-items="ViewBag.InstituteID"></select>
+                        <span asp-validation-for="InstituteID" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Faculty</label>
+                        <select id="FacultyID" name="FacultyID" class="form-control" asp-items="ViewBag.FacultyID"></select>
+                        <span asp-validation-for="FacultyID" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Year">Year</label>
+                        <select asp-for="Year" class="form-control" asp-items="ViewBag.Years"></select>
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">ADD</button>
+        </form>
+    </div>
+
+   
+      
+
+    <script>
+        $(document).ready(function () {
+            // Handle Institute dropdown change
+            $('#InstituteID').change(function () {
+                var instituteId = $(this).val();
+                if (instituteId) {
+                    $.getJSON('/Student/GetCourses', { instituteId: instituteId }, function (data) {
+                        var courseSelect = $('#CourseID');
+                        courseSelect.empty();
+                        courseSelect.append($('<option>').text('Select Course').attr('value', ''));
+                        $.each(data, function (index, item) {
+                            courseSelect.append($('<option>').text(item.name).attr('value', item.courseID));
+                        });
+                        $('#StandardID').empty().append($('<option>').text('Select Standard').attr('value', ''));
+                        $('#FacultyID').empty().append($('<option>').text('Select Faculty').attr('value', ''));
+                    });
+                } else {
+                    $('#CourseID').empty().append($('<option>').text('Select Course').attr('value', ''));
+                    $('#StandardID').empty().append($('<option>').text('Select Standard').attr('value', ''));
+                    $('#FacultyID').empty().append($('<option>').text('Select Faculty').attr('value', ''));
+                }
+            });
+
+            // Handle Course dropdown change
+            $('#CourseID').change(function () {
+                var courseId = $(this).val();
+                if (courseId) {
+                    $.getJSON('/Student/GetStandards', { courseId: courseId }, function (data) {
+                        var standardSelect = $('#StandardID');
+                        standardSelect.empty();
+                        standardSelect.append($('<option>').text('Select Standard').attr('value', ''));
+                        $.each(data, function (index, item) {
+                            standardSelect.append($('<option>').text(item.standardName).attr('value', item.standardID));
+                        });
+                        $('#FacultyID').empty().append($('<option>').text('Select Faculty').attr('value', ''));
+                    });
+                } else {
+                    $('#StandardID').empty().append($('<option>').text('Select Standard').attr('value', ''));
+                    $('#FacultyID').empty().append($('<option>').text('Select Faculty').attr('value', ''));
+                }
+            });
+
+            // Handle Standard dropdown change
+            $('#StandardID').change(function () {
+                var standardId = $(this).val();
+                if (standardId) {
+                    $.getJSON('/Student/GetFaculties', { standardId: standardId }, function (data) {
+                        var facultySelect = $('#FacultyID');
+                        facultySelect.empty();
+                        facultySelect.append($('<option>').text('Select Faculty').attr('value', ''));
+                        $.each(data, function (index, item) {
+                            facultySelect.append($('<option>').text(item.firstName).attr('value', item.facultyID));
+                        });
+                    });
+                } else {
+                    $('#FacultyID').empty().append($('<option>').text('Select Faculty').attr('value', ''));
+                }
+            });
+        });
+    </script>
+   
+</body>
+
+
+</html>
+

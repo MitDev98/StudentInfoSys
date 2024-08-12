@@ -1,0 +1,157 @@
+﻿@* @model SIS_Dev.Models.StudentListViewModel
+
+<h2>Students for Assessment</h2>
+
+<form asp-action="SubmitAssessmentResults" method="post">
+    <input type="hidden" asp-for="AssessmentId" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Obtained Marks</th>
+                <th>Remark</th>
+                <th>Attendance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Students.Count; i++)
+                {
+                <tr>
+                    <td>@Model.Students[i].StudentID</td>
+                    <td>@Model.Students[i].FirstName @Model.Students[i].LastName</td>
+                    <td>
+                        <input type="hidden" name="AssessmentResults[@i].StudentID" value="@Model.Students[i].StudentID" />
+                        <input type="hidden" name="AssessmentResults[@i].AssessmentID" value="@Model.AssessmentId" />
+                        <input type="number" name="AssessmentResults[@i].ObtainedMarks" class="form-control obtained-marks" data-index="@i" />
+                    </td>
+                    <td>
+                        <input type="text" name="AssessmentResults[@i].Remark" class="form-control remark" data-index="@i" />
+                    </td>
+                    <td>
+                        <input type="checkbox" name="AssessmentResults[@i].Absent" value="true" class="absent-checkbox" data-index="@i" />
+                        <input type="hidden" name="AssessmentResults[@i].Absent" value="false" />
+                    </td>
+                </tr>
+                }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Submit Results</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.absent-checkbox').forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                var index = this.getAttribute('data-index');
+                var obtainedMarksField = document.querySelector('input[name="AssessmentResults[' + index + '].ObtainedMarks"]');
+                var remarkField = document.querySelector('input[name="AssessmentResults[' + index + '].Remark"]');
+
+                if (this.checked) {
+                    obtainedMarksField.value = 0; // Default value to represent absence
+                    obtainedMarksField.disabled = true;
+                    remarkField.value = "Absent"; // Default value to represent absence
+                    remarkField.disabled = true;
+                } else {
+                    obtainedMarksField.value = ''; // Clear the value
+                    obtainedMarksField.disabled = false;
+                    remarkField.value = ''; // Clear the value
+                    remarkField.disabled = false;
+                }
+            });
+        });
+
+        document.querySelector('form').addEventListener('submit', function () {
+            document.querySelectorAll('.absent-checkbox').forEach(function (checkbox) {
+                var index = checkbox.getAttribute('data-index');
+                var obtainedMarksField = document.querySelector('input[name="AssessmentResults[' + index + '].ObtainedMarks"]');
+                var remarkField = document.querySelector('input[name="AssessmentResults[' + index + '].Remark"]');
+
+                if (checkbox.checked) {
+                    obtainedMarksField.disabled = false; // Ensure field is not disabled before submission
+                    remarkField.disabled = false; // Ensure field is not disabled before submission
+                }
+            });
+        });
+    </script>
+}
+ *@
+
+
+                @model SIS_Dev.Models.StudentListViewModel
+
+<h2>Students for Assessment</h2>
+
+<form asp-action="SubmitAssessmentResults" method="post">
+    <input type="hidden" asp-for="AssessmentId" />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Obtained Marks</th>
+                <th>Remark</th>
+                <th>Attendance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Students.Count; i++)
+                {
+                <tr>
+                    <td>@Model.Students[i].StudentID</td>
+                    <td>@Model.Students[i].FirstName @Model.Students[i].LastName</td>
+                    <td>
+                        <input type="hidden" name="AssessmentResults[@i].StudentID" value="@Model.Students[i].StudentID" />
+                        <input type="hidden" name="AssessmentResults[@i].AssessmentID" value="@Model.AssessmentId" />
+                        <input type="number" name="AssessmentResults[@i].ObtainedMarks" class="form-control obtained-marks" data-index="@i" />
+                    </td>
+                    <td>
+                        <input type="text" name="AssessmentResults[@i].Remark" class="form-control remark" data-index="@i" />
+                    </td>
+                    <td>
+                        <input type="checkbox" name="AssessmentResults[@i].Absent" value="true" class="absent-checkbox" data-index="@i" />
+                        <input type="hidden" name="AssessmentResults[@i].Absent" value="false" />
+                    </td>
+                </tr>
+                }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Submit Results</button>
+</form>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.absent-checkbox').forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                var index = this.getAttribute('data-index');
+                var obtainedMarksField = document.querySelector('input[name="AssessmentResults[' + index + '].ObtainedMarks"]');
+                var remarkField = document.querySelector('input[name="AssessmentResults[' + index + '].Remark"]');
+
+                if (this.checked) {
+                    obtainedMarksField.value = 0; // Default value to represent absence
+                    obtainedMarksField.disabled = true;
+                    remarkField.value = "Absent"; // Default value to represent absence
+                    remarkField.disabled = true;
+                } else {
+                    obtainedMarksField.value = ''; // Clear the value
+                    obtainedMarksField.disabled = false;
+                    remarkField.value = ''; // Clear the value
+                    remarkField.disabled = false;
+                }
+            });
+        });
+
+        document.querySelector('form').addEventListener('submit', function () {
+            document.querySelectorAll('.absent-checkbox').forEach(function (checkbox) {
+                var index = checkbox.getAttribute('data-index');
+                var obtainedMarksField = document.querySelector('input[name="AssessmentResults[' + index + '].ObtainedMarks"]');
+                var remarkField = document.querySelector('input[name="AssessmentResults[' + index + '].Remark"]');
+
+                if (checkbox.checked) {
+                    obtainedMarksField.disabled = false; // Ensure field is not disabled before submission
+                    remarkField.disabled = false; // Ensure field is not disabled before submission
+                }
+            });
+        });
+    </script>
+}

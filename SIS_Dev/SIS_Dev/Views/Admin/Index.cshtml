@@ -1,0 +1,74 @@
+﻿
+ @model IEnumerable<SIS_Dev.Models.Admin>
+
+@{
+    ViewData["Title"] = "Admins ";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Head content omitted for brevity -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            if (successMessage) {
+                alert(successMessage);
+            }
+        });
+    </script>
+
+</head>
+<body>
+<h1>Admins Index</h1>
+<a href="@Url.Action("Create")" class="btn btn-primary">Create New </a>
+</br>
+<!-- Table to display admins -->
+    <div class="table-responsive">
+
+<table class="table table-striped"id="v">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Institute</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var admin in Model)
+            {
+            <tr>
+                <td>@admin.Email</td>
+                        <td>
+                            @{
+                                var instituteName = ViewBag.Institutes.ContainsKey(admin.InstituteID)
+                                ? ViewBag.Institutes[admin.InstituteID]
+                                : "No Institute";
+                                <span>@instituteName</span>
+
+                            }
+                        </td>
+                        <td>
+                    <a href="@Url.Action("Edit", new { id = admin.AdminID })" class="btn btn-warning">Edit</a>
+                    <a href="@Url.Action("Delete", new { id = admin.AdminID })" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>
+</div>
+    <script>
+        setTimeout(function () {
+            $('.alert').fadeOut('fast');
+        }, 3000); // 3 seconds
+    </script>
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#v').DataTable();
+        });
+    </script>
+}
+</body>
+</html>

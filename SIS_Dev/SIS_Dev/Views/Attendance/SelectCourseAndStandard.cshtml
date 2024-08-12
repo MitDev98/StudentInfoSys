@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewData["Title"] = "Select Standard and Subject";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="StudentList" method="post">
+    <input type="hidden" name="courseId" value="@ViewBag.CourseId" />
+
+    <div class="form-group">
+        <label for="standard">Select Standard:</label>
+        <select name="standard" id="standard" class="form-control">
+            @foreach (var standard in ViewBag.Standards)
+                {
+                <option value="@standard">@standard</option>
+                }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="subject">Select Subject:</label>
+        <select name="subject" id="subject" class="form-control">
+            @foreach (var subject in ViewBag.Subjects)
+                {
+                <option value="@subject.Name">@subject.Name</option>
+                }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Select</button>
+</form>

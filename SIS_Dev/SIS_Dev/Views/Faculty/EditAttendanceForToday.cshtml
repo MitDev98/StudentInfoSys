@@ -1,0 +1,63 @@
+﻿@model List<AttendanceViewModel>
+
+@{
+    ViewData["Title"] = "Edit Attendance for Today";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .form-box {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-check-input {
+            margin-top: 0.3rem;
+        }
+        .btn-primary {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-box">
+            <h2>Edit Attendance for @Model.FirstOrDefault()?.Date.ToShortDateString()</h2>
+            <form asp-action="EditAttendanceForToday" asp-controller="Faculty" method="post" class="form-horizontal">
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <input type="hidden" asp-for="@Model[i].AttendanceID" />
+                    <input type="hidden" asp-for="@Model[i].SubjectName" />
+                    <input type="hidden" asp-for="@Model[i].FacultyID" />
+
+                    <div class="form-group row">
+                        <label asp-for="@Model[i].Status" class="col-sm-2 col-form-label control-label"> @Model[i].StudentFirstName @Model[i].StudentLastName</label>
+                        <div class="col-sm-10">
+                            <input asp-for="@Model[i].Status" class="form-check-input" type="checkbox" />
+                            <span asp-validation-for="@Model[i].Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                        <a asp-action="AttendanceList" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>

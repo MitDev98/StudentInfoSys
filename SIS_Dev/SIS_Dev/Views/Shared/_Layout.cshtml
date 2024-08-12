@@ -1,0 +1,381 @@
+﻿@*  @if (Context.Session.GetString("UserEmail") == "admin")
+                                    {} *@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Student Information System</title>
+    <!-- HTML5 Shim and Respond.js IE9 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="CodedThemes">
+    <meta name="keywords" content=" Admin , Responsive, Landing, Bootstrap, App, Template, Mobile, iOS, Android, apple, creative app">
+    <meta name="author" content="CodedThemes">
+    <!-- Favicon icon -->
+    <link rel="icon" href="~/assets/assets/images/favicon.ico" type="image/x-icon">
+    <!-- Google font-->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
+    <!-- Required Fremwork -->
+    <link rel="stylesheet" type="text/css" href="~/assets/assets/css/bootstrap/css/bootstrap.min.css">
+    <!-- themify-icons line icon -->
+    <link rel="stylesheet" type="text/css" href="~/assets/assets/icon/themify-icons/themify-icons.css">
+    <!-- ico font -->
+    <link rel="stylesheet" type="text/css" href="~/assets/assets/icon/icofont/css/icofont.css">
+    <!-- Style.css -->
+    <link rel="stylesheet" type="text/css" href="~/assets/assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="~/assets/assets/css/jquery.mCustomScrollbar.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+
+</head>
+
+<body>
+
+    <div id="pcoded" class="pcoded">
+        <div class="pcoded-overlay-box"></div>
+        <div class="pcoded-container navbar-wrapper">
+
+            <nav class="navbar header-navbar pcoded-header">
+                <div class="navbar-wrapper">
+
+                    <div class="navbar-logo" style="background-color:dodgerblue">
+                        @*  <a class="mobile-menu" id="mobile-collapse" href="#!">
+                        <i class="ti-menu"></i>
+                        </a> *@
+                        <a class="mobile-search morphsearch-search" href="#">
+                            <i class="ti-search"></i>
+                        </a>
+                        <a asp-action="Index" asp-controller="Home">
+                            <img class="img-fluid" src="~/assets/images/homelogo.png" alt="Theme-Logo" />
+                        </a>
+                        @*  <a class="mobile-options">
+                        <i class="ti-more"></i>
+                        </a> *@
+                    </div>
+
+                    <div class="navbar-container container-fluid">
+                        <ul class="nav-left">
+                            <li>
+                                <div class="sidebar_toggle"><a href="javascript:void(0)"><i class="ti-menu"></i></a></div>
+                            </li>
+
+                            <li>
+                                <a href="#!" onclick="javascript:toggleFullScreen()">
+                                    <i class="ti-fullscreen"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="nav-right">
+
+                            <li class="user-profile header-notification">
+                                <a href="#!">
+                                    <img src="~/assets/images/p1.png" class="img-radius" alt="User-Profile-Image">
+                                    <span>@Context.Session.GetString("UserEmail")</span>
+                                    <i class="ti-angle-down"></i>
+                                </a>
+                                <ul class="show-notification profile-notification">
+
+                                    <li>
+                                        <a asp-action="Logout" asp-controller="Account">
+                                            <i class="ti-layout-sidebar-left"></i> Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <div class="pcoded-main-container">
+                <div class="pcoded-wrapper">
+                    <nav class="pcoded-navbar">
+                        <div class="sidebar_toggle"><a href="#"><i class="icon-close icons"></i></a></div>
+                        <div class="pcoded-inner-navbar main-menu">
+                            <div class="pcoded-navigatio-lavel" data-i18n="nav.category.navigation"></div>
+                            <ul class="pcoded-item pcoded-left-item">
+
+                                @if (Context.Session.GetString("UserRole") == "SuperAdmin")
+                                    {
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Home">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Admin">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Admin</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Institute">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Institute</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Student">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-user"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Student</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Faculty">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-user"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Faculty</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Course">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layers-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Course</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Standard">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-list-thumb-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Standard</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Subject">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-book"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Subject</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                   @*  <li class="active">
+                                        <a asp-action="Index" asp-controller="Department">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Department</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li> *@
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Timetable">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-column3"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Timetable</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Assessment">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-pencil-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Assessment</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    }
+                                else if (Context.Session.GetString("UserRole") == "Admin")
+                                    {
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Home">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Institute">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Institute</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Student">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-user"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Student</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Faculty">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-user"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Faculty</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Course">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layers-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Course</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Standard">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-list-thumb-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Standard</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Subject">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-book"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Subject</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                   @*  <li class="active">
+                                        <a asp-action="Index" asp-controller="Department">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Department</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li> *@
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Timetable">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-column3"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Timetable</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Assessment">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-pencil-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Assessment</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    }
+                               
+                                else if (Context.Session.GetString("UserRole") == "Faculty")
+                                    {
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Home">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Home</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="FacultyDashboard" asp-controller="Faculty">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-column3"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main"> TimeTable</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="FacultyDashboardAssessment" asp-controller="Faculty">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-pencil-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main"> Assessment</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="FacultyIndex" asp-controller="Leave">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-accordion-merged"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Student Leave </span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+
+                                   
+                                    }
+                                else if (Context.Session.GetString("UserRole") == "Student")
+                                    {
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Home">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-home"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Home</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="StudentDashboard" asp-controller="Student">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-pencil-alt"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Assessment Result</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="active">
+                                        <a asp-action="Index" asp-controller="Leave">
+                                            <span class="pcoded-micon" style="background-color:dodgerblue"><i class="ti-layout-accordion-merged"></i></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Leave</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    }
+                            </ul>
+                        </div>
+                    </nav>
+                    <div class="main-panel">
+                        <div class="content-wrapper">
+                            <div class="container">
+                                <main role="main" class="pb-3">
+                                    @RenderBody()
+                                </main>
+                            </div>
+                        </div>
+
+
+                        @*  <footer class="border-top footer text-muted">
+                        <div class="container">
+                        <p>   &copy; 2024 - Student Information System All rights reserved.</p>
+                        <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </div>
+                        </footer> *@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Required Jquery -->
+
+    <script type="text/javascript" src="~/assets/assets/js/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="~/assets/assets/js/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="~/assets/assets/js/popper.js/popper.min.js"></script>
+    <script type="text/javascript" src="~/assets/assets/js/bootstrap/js/bootstrap.min.js"></script>
+    <!-- jquery slimscroll js -->
+    <script type="text/javascript" src="~/assets/assets/js/jquery-slimscroll/jquery.slimscroll.js"></script>
+    <!-- modernizr js -->
+    <script type="text/javascript" src="~/assets/assets/js/modernizr/modernizr.js"></script>
+    <!-- am chart -->
+    <script src="~/assets/assets/pages/widget/amchart/amcharts.min.js"></script>
+    <script src="~/assets/assets/pages/widget/amchart/serial.min.js"></script>
+    <!-- Todo js -->
+    <script type="text/javascript " src="~/assets/assets/pages/todo/todo.js "></script>
+    <!-- Custom js -->
+    <script type="text/javascript" src="~/assets/assets/pages/dashboard/custom-dashboard.js"></script>
+    <script type="text/javascript" src="~/assets/assets/js/script.js"></script>
+    <script type="text/javascript " src="~/assets/assets/js/SmoothScroll.js"></script>
+    <script src="~/assets/assets/js/pcoded.min.js"></script>
+    <script src="~/assets/assets/js/demo-12.js"></script>
+    <script src="~/assets/assets/js/jquery.mCustomScrollbar.concat.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        var $window = $(window);
+        var nav = $('.fixed-button');
+        $window.scroll(function () {
+            if ($window.scrollTop() >= 200) {
+                nav.addClass('active');
+            }
+            else {
+                nav.removeClass('active');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

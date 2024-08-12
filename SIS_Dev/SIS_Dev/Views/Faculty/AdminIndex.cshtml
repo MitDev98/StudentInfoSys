@@ -1,0 +1,75 @@
+﻿
+ @model IEnumerable<SIS_Dev.Models.Faculty>
+
+@{
+    ViewData["Title"] = "Faculty";
+    var institu = ViewBag.institus as Dictionary<int, string>;
+    var userRole = ViewBag.UserRole as string;
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Head content omitted for brevity -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            if (successMessage) {
+                alert(successMessage);
+            }
+        });
+    </script>
+
+</head>
+<body>
+<h1>Faculty List</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<div class="table-responsive">
+
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+               
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                    <th>Institute</th>
+
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var faculty in Model)
+                {
+                <tr>
+                 
+                    <td>@faculty.FirstName</td>
+                    <td>@faculty.LastName</td>
+                    <td>@faculty.Email</td>
+                        <td>@institu[faculty.InstituteID]</td>
+
+                     
+                       
+                    <td>
+                        <a href="@Url.Action("Edit", "Faculty", new { id = faculty.FacultyID })" class="btn btn-sm btn-warning">Edit</a> |
+                        <a href="@Url.Action("Delete", "Faculty", new { id = faculty.FacultyID })" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                }
+        </tbody>
+    </table>
+</div>
+    <!-- JavaScript to handle popup display -->
+    <script>
+        setTimeout(function () {
+            $('.alert').fadeOut('fast');
+        }, 3000); // 3 seconds
+    </script>
+</body>
+</html>

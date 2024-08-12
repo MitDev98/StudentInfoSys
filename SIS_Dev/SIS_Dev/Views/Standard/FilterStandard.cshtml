@@ -1,0 +1,44 @@
+﻿@model IEnumerable<SIS_Dev.Models.Standard>
+
+@{
+    ViewData["Title"] = "Standards Index";
+    var institutes = ViewBag.Institutes as Dictionary<int, string>;
+    var courses = ViewBag.Courses as Dictionary<int, string>;
+    var years = ViewBag.Years as List<string>;
+
+}
+
+<h1>Standards Index</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Standard Name</th>
+
+            <th>Institute</th>
+            <th>Course</th>
+            <th>Year</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var standard in Model)
+            {
+            <tr>
+                <td>@standard.StandardName</td>
+                <td>@ViewBag.Institutes[standard.InstituteID]</td>
+                <td>
+                    @if (courses != null && courses.ContainsKey(standard.CourseID))
+                        {
+                        @courses[standard.CourseID]
+                        }
+                    else
+                        {
+                        <span class="text-danger">Course not found</span>
+                        }
+                </td>
+                <td>@standard.Year</td>
+                
+            </tr>
+            }
+    </tbody>
+</table>

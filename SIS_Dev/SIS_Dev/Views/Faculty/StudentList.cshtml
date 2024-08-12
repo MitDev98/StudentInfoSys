@@ -1,0 +1,150 @@
+﻿@*   @model List<SIS_Dev.Models.Student>
+
+@{
+    ViewData["Title"] = "Student List";
+    var subjectName = ViewData["SubjectName"] as string;
+}
+
+<h2>Student List for @subjectName</h2>
+<br />
+
+<form asp-action="SaveAttendance" method="post">
+    <input type="hidden" name="SubjectName" value="@subjectName" />
+    <input type="hidden" name="FacultyID" value="@User.Claims.FirstOrDefault(c => c.Type == "FacultyID")?.Value" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+      
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Attendance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+            {
+                <tr>
+                    <td>@student.FirstName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.Email</td>
+                    <td class="custom-checkbox">
+                        <input type="checkbox" name="Attendance[@student.StudentID]" value="true" />
+                        <input type="hidden" name="Attendance[@student.StudentID]" value="false" />
+                        <span class="status-text"></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Save Attendance</button>
+</form>
+
+@section Scripts {
+    <style>
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-text {
+            margin-left: 10px; /* Adjust margin as needed */
+            font-weight: bold;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('input[type="checkbox"]').change(function () {
+                var isChecked = $(this).prop('checked');
+                var statusSpan = $(this).siblings('.status-text');
+
+                if (isChecked) {
+                    statusSpan.text('Absent');
+                } else {
+                    statusSpan.text('');
+                }
+            });
+        });
+    </script>
+}
+  *@
+
+ @model List<SIS_Dev.Models.Student>
+
+@{
+    ViewData["Title"] = "Student List";
+    var subjectName = ViewData["SubjectName"] as string;
+}
+
+<h2>Student List for @subjectName</h2>
+<br />
+
+<form asp-action="SaveAttendance" method="post">
+    <input type="hidden" name="SubjectName" value="@subjectName" />
+    <input type="hidden" name="FacultyID" value="@User.Claims.FirstOrDefault(c => c.Type == "FacultyID")?.Value" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Attendance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+                {
+                <tr>
+                    <td>@student.FirstName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.Email</td>
+                    <td class="custom-checkbox">
+                        <input type="checkbox" name="Attendance[@student.StudentID]" value="true" checked />
+                        <input type="hidden" name="Attendance[@student.StudentID]" value="false" />
+                        <span class="status-text">Present</span>
+                    </td>
+                </tr>
+                }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Save Attendance</button>
+</form>
+
+@section Scripts {
+    <style>
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-text {
+            margin-left: 10px; /* Adjust margin as needed */
+            font-weight: bold;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('input[type="checkbox"]').each(function () {
+                $(this).prop('checked', true);
+                $(this).siblings('.status-text').text('Present');
+            });
+
+            $('input[type="checkbox"]').change(function () {
+                var isChecked = $(this).prop('checked');
+                var statusSpan = $(this).siblings('.status-text');
+
+                if (isChecked) {
+                    statusSpan.text('Present');
+                } else {
+                    statusSpan.text('Absent');
+                }
+            });
+        });
+    </script>
+} 

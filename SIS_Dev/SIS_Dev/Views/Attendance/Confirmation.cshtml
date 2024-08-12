@@ -1,0 +1,36 @@
+﻿@model List<SIS_Dev.Models.Attendance>
+
+@{
+    ViewData["Title"] = "Attendance Confirmation";
+}
+
+<h1>Attendance List</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Student ID</th>
+            <th>Subject</th>
+            <th>Topic</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var attendance in Model)
+            {
+            <tr>
+                <td>@attendance.Date.ToShortDateString()</td>
+                <td>@attendance.StudentID</td>
+                <td>@attendance.SubjectName</td>
+                <td>@attendance.Topic</td>
+                <td>@attendance.StartTime.ToString(@"hh\:mm")</td>
+                <td>@attendance.EndTime.ToString(@"hh\:mm")</td>
+                <td>@(attendance.Status ? "Absent" : "Present")</td>
+            </tr>
+            }
+    </tbody>
+</table>
+<a asp-action="Index" asp-controller="Attendance" class="btn btn-dark">Back To Attendance</a>

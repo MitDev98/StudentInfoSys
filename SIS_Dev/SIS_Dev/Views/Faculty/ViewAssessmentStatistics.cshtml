@@ -1,0 +1,51 @@
+﻿@model SIS_Dev.Models.AssessmentStatisticsViewModel
+
+<html>
+<head>
+    <style>
+        
+        .statistics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+
+            .statistics-table th, .statistics-table td {
+                padding: 12px;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .statistics-table th {
+                background-color: #f2f2f2;
+            }
+    </style>
+</head>
+<body>
+    <br />
+
+    <h2>Assessment Results</h2>
+
+    <table class="statistics-table">
+        <thead>
+            <tr>
+                <th>Total Students</th>
+                <th>Passed</th>
+                <th>Failed</th>
+                <th>Absent</th>
+                <th>Average Marks</th>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+                <td style ="color: blue; font-weight: bold;">@Model.TotalStudents</td>
+                <td style="color: green; font-weight: bold;">@Model.PassedStudents</td>
+                <td style="color: mediumvioletred; font-weight: bold;">@Model.FailedStudents</td>
+                <td style="color: red; font-weight: bold;">@Model.AbsentStudents</td>
+                <td style="color:chocolate; font-weight: bold;">@Model.AverageMarks.ToString("F2")</td> <!-- Display average marks with 2 decimal places -->
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>

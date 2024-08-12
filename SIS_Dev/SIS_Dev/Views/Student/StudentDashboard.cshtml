@@ -1,0 +1,54 @@
+﻿ @model List<SIS_Dev.Models.AssessmentResult>
+<br />
+<h2>Assessments Result</h2>
+<br />
+@if (Model.Count == 0)
+    {
+    <p>No Result Found</p>
+    }
+else
+    {
+    <div class="table-responsive">
+
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Subject Name</th>
+                    <th>Date</th>
+                    <th>Obtained Marks</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var assessment in Model)
+                    {
+                    <tr>
+                        <td>@GetSubjectName(assessment.AssessmentID)</td>
+                        <td>@GetDate(assessment.AssessmentID)</td>
+                        <td>@assessment.ObtainedMarks</td>
+                        <td>@assessment.Remark</td>
+                    </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    }
+
+@functions {
+    public string GetSubjectName(int assessmentId)
+        {
+        // Fetch course name from ViewData["Courses"]
+        var assessments = ViewData["Assessments"] as List<SIS_Dev.Models.Assessment>;
+        var assessment = assessments.FirstOrDefault(c => c.AssessmentID == assessmentId);
+        return assessment != null ? assessment.SubjectName : " Not Found";
+        }
+}
+@functions {
+    public string GetDate(int assessmentId)
+        {
+        // Fetch due date from ViewData["Assessments"]
+        var assessments = ViewData["AssessmentsDate"] as List<SIS_Dev.Models.Assessment>;
+        var assessment = assessments.FirstOrDefault(c => c.AssessmentID == assessmentId);
+        return assessment != null ? assessment.Date.ToString("yyyy-MM-dd") : "Not Found";
+        }
+}

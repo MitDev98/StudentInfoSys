@@ -1,0 +1,32 @@
+﻿@model IEnumerable<SIS_Dev.Models.Institute>
+
+@{
+    ViewData["Title"] = "Institutes Index";
+}
+
+<h1>Institutes Index</h1>
+
+<a href="@Url.Action("Create")" class="btn btn-primary">Create New Institute</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <!-- Add other columns as necessary -->
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var institute in Model)
+            {
+            <tr>
+                <td>@institute.Name</td>
+                <!-- Add other columns as necessary -->
+                <td>
+                    <a href="@Url.Action("Edit", new { id = institute.InstituteID })" class="btn btn-warning">Edit</a>
+                    <a href="@Url.Action("Delete", new { id = institute.InstituteID })" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>

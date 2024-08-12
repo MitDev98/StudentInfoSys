@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-6 col-xl-6">
+            <div class="card widget-card-1">
+                <div class="card-block-small">
+                    <i class="icofont icofont-ui-user bg-c-pink card1-icon"></i>
+                    <h4> <span class="text-c-pink f-w-600">Total Students</span></h4>
+                    <h3 class="text-c-pink f-w-600">@ViewBag.TotalStudents</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-6">
+            <div class="card widget-card-1">
+                <div class="card-block-small">
+                    <i class="icofont icofont-user bg-c-green card1-icon"></i>
+                    <h4> <span class="text-c-green f-w-600">Total Faculties</span> </h4>
+                    <h3 class="text-c-green f-w-600">@ViewBag.TotalFaculties</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-6">
+            <div class="card widget-card-1">
+                <div class="card-block-small">
+                    <i class="icofont icofont-layers bg-c-yellow card1-icon"></i>
+                    <h4> <span class="text-c-yellow f-w-600">Total Courses</span></h4>
+                    <h3 class="text-c-yellow f-w-600">@ViewBag.TotalCourses</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-6">
+            <div class="card widget-card-1">
+                <div class="card-block-small">
+                    <i class="icofont icofont-book bg-c-blue card1-icon"></i>
+                    <h4> <span class="text-c-blue f-w-600">Total Subjects</span></h4>
+                    <h3 class="text-c-blue f-w-600">@ViewBag.TotalSubjects</h3>
+                </div>
+            </div>
+        </div>
+       
+
+        <!-- Add more cards or sections as needed -->
+    </div>
+</div>
