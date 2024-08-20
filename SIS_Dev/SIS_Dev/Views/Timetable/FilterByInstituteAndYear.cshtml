@@ -1,0 +1,53 @@
+﻿@model List<SIS_Dev.Models.TimetableViewModel>
+
+@{
+    ViewData["Title"] = "Filtered Timetables";
+}
+
+<h2>Timetables for @ViewData["InstituteName"] - @ViewData["Year"]</h2>
+
+<table class="table" id="filteredTimetableTable">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Faculty Name</th>
+            <th>Subject Name</th>
+            <th>Standard</th>
+            <th>Days</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Institute</th>
+            <th>Year</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.CourseName)</td>
+                <td>@Html.DisplayFor(modelItem => item.FacultyName)</td>
+                <td>@Html.DisplayFor(modelItem => item.SubjectName)</td>
+                <td>@Html.DisplayFor(modelItem => item.StandardName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Days)</td>
+                <td>@item.StartTime.ToString(@"hh\:mm")</td>
+                <td>@item.EndTime.ToString(@"hh\:mm")</td>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Year)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.TimetableID" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.TimetableID" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+            }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#filteredTimetableTable').DataTable();
+        });
+    </script>
+}

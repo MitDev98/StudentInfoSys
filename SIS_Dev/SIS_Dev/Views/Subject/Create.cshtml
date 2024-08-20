@@ -61,7 +61,7 @@
         }
 
             .btn-primary:hover {
-                background-color: #000;
+                background-color:lightskyblue;
             }
 
         .text-danger {
@@ -118,30 +118,6 @@
             </div>
         </form>
     </div>
-
-
-    @* <script>
-        $(document).ready(function () {
-            $('#CourseID').change(function () {
-                var courseId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("GetStandardsByCourse", "Subject")',
-                    type: 'GET',
-                    data: { courseId: courseId },
-                    success: function (data) {
-                        var standardSelect = $('#StandardID');
-                        standardSelect.empty();
-                        $.each(data, function (index, item) {
-                            standardSelect.append($('<option>', {
-                                value: item.standardID,
-                                text: item.standardName
-                            }));
-                        });
-                    }
-                });
-            });
-        });
-    </script> *@
 
 
     <script type="text/javascript">

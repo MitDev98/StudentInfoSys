@@ -121,7 +121,7 @@
                         <input asp-for="EndTime" class="form-control" type="time" />
                         <span asp-validation-for="EndTime" class="text-danger"></span>
                     </div>
-
+                   
 
                 </div>
 
@@ -143,7 +143,16 @@
                         </select>
                         <span asp-validation-for="Days" class="text-danger"></span>
                     </div>
-                    
+                    <div class="form-group">
+                        <label asp-for="Year">Year</label>
+                        <select asp-for="Year" class="form-control" asp-items="ViewBag.Years"></select>
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CreatedBy">CreatedBy</label>
+                        <input type="" asp-for="CreatedBy" class="form-control" readonly />
+                        <span asp-validation-for="CreatedBy" class="text-danger"></span>
+                    </div>
                       
                 </div>
             </div>

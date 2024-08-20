@@ -25,9 +25,11 @@ namespace SIS_Dev.Models
 
         [Required(ErrorMessage = "End Time is required")]
         public TimeSpan EndTime { get; set; }
+        public DateTime? CreatedBy { get; set; }
+        public DateTime? ModifiedBy { get; set; }
 
-        public int? InstituteID { get; set; }
-        //public string Year { get; set; }
+        public int InstituteID { get; set; }
+        public string Year { get; set; }
 
         }
     }

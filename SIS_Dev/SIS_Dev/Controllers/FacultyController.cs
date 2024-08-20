@@ -48,26 +48,36 @@ namespace SIS_Dev.Controllers
 
 
 
-        // GET: Faculty/Create
         public IActionResult Create()
             {
-
-            // Filter institutes based on user role
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
             if (userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
+                // Get the admin details based on the logged-in user's email
+                var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+                if (admin != null)
                     {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name");
+                    ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name");
+                    ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName");
+                    ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => _context.tblStandard.Where(std => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(std.CourseID)).Select(std => std.StandardID).Contains(s.StandardID)), "SubjectID", "SubjectName");
                     }
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
-            ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewBag.StandardID = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewBag.SubjectID = new SelectList(Enumerable.Empty<SelectListItem>());
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
+                ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewBag.StandardID = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewBag.SubjectID = new SelectList(Enumerable.Empty<SelectListItem>());
+                }
+
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
@@ -77,8 +87,12 @@ namespace SIS_Dev.Controllers
                 yearRanges.Add($"{year}-{endYear}");
                 }
             ViewBag.Years = new SelectList(yearRanges);
+
             return View();
             }
+
+
+
 
 
         [HttpPost]
@@ -87,10 +101,8 @@ namespace SIS_Dev.Controllers
             {
             if (_context.tblFaculties.Any(c => c.Email == faculty.Email || c.Contactno == faculty.Contactno))
                 {
-                ModelState.AddModelError(string.Empty, "A Faculty with same email and contactno already exists.");
+                ModelState.AddModelError(string.Empty, "A Faculty with the same email and contact number already exists.");
                 }
-
-
 
             if (ModelState.IsValid)
                 {
@@ -100,23 +112,33 @@ namespace SIS_Dev.Controllers
                 TempData["SuccessMessage"] = "Faculty inserted successfully!";
                 return RedirectToAction(nameof(Index));
                 }
-            // If we got this far, something failed, redisplay the form
+
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
             if (userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
+                var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+                if (admin != null)
                     {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", faculty.InstituteID);
+                    ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", faculty.CourseID);
+                    ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", faculty.StandardID);
+                    ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => _context.tblStandard.Where(std => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(std.CourseID)).Select(std => std.StandardID).Contains(s.StandardID)), "SubjectID", "SubjectName", faculty.SubjectID);
                     }
                 }
-            // Re-populate the dropdowns in case of a validation error
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
-            ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+            else
+                {
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
+
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
             for (int year = 2000; year <= currentYear; year += 1)
@@ -125,8 +147,10 @@ namespace SIS_Dev.Controllers
                 yearRanges.Add($"{year}-{endYear}");
                 }
             ViewBag.Years = new SelectList(yearRanges, faculty.Year);
+
             return View(faculty);
             }
+
 
         public JsonResult GetCourses(int instituteId)
             {
@@ -153,6 +177,7 @@ namespace SIS_Dev.Controllers
             return Json(subjects);
             }
 
+
         // GET: Faculty/Edit/5
         public async Task<IActionResult> Edit(int? id)
             {
@@ -166,10 +191,29 @@ namespace SIS_Dev.Controllers
                 {
                 return NotFound();
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
-            ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && (userRole == "Admin"))
+                {
+                // For logged-in admin, filter by their institute
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
+
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
@@ -203,10 +247,9 @@ namespace SIS_Dev.Controllers
                 try
                     {
                     faculty.ModifiedBy = DateTime.Now;
-                    _context.tblFaculties.Update(faculty);
+                    _context.Update(faculty);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Faculty updated successfully!";
-
                     }
                 catch (DbUpdateConcurrencyException)
                     {
@@ -221,12 +264,40 @@ namespace SIS_Dev.Controllers
                     }
                 return RedirectToAction(nameof(Index));
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
-            ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && (userRole == "Admin"))
+                {
+                // For logged-in admin, filter by their institute
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
+            // Generate year ranges from 2000 to the current year
+            var currentYear = DateTime.Now.Year;
+            var yearRanges = new List<string>();
+            for (int year = 2000; year <= currentYear; year += 1)
+                {
+                var endYear = Math.Min(year + 1, currentYear);
+                yearRanges.Add($"{year}-{endYear}");
+                }
+            ViewBag.Years = new SelectList(yearRanges);
             return View(faculty);
             }
+
 
         // GET: Faculty/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -243,12 +314,27 @@ namespace SIS_Dev.Controllers
                 {
                 return NotFound();
                 }
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
 
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
-            ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
-
+            if (admin != null && (userRole == "Admin"))
+                {
+                // For logged-in admin, filter by their institute
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == faculty.CourseID), "StandardID", "StandardName", faculty.StandardID);
+                ViewBag.SubjectID = new SelectList(_context.tblSubject.Where(s => s.StandardID == faculty.StandardID), "SubjectID", "SubjectName", faculty.SubjectID);
+                }
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
@@ -614,19 +700,6 @@ namespace SIS_Dev.Controllers
             return View(assessments);
             }
 
-        ////studentlist brbr krvu baki chhe
-        //public async Task<IActionResult> StudentList(int courseId, string standardName, int subjectId)
-        //    {
-
-        //    var students = await _context.tblStudent
-        //        .Where(s => s.CourseID == courseId && s.StandardID == standardName)
-        //        .ToListAsync();
-
-        //    var subject = await _context.tblSubject.FindAsync(subjectId);
-        //    ViewData["SubjectName"] = subject?.SubjectName;
-
-        //    return View(students);
-        //    }
 
         public async Task<IActionResult> StudentList(int courseId, int standardId, int subjectId)
             {
@@ -641,48 +714,7 @@ namespace SIS_Dev.Controllers
             return View(students);
             }
 
-        //[HttpPost]
-        //public async Task<IActionResult> SaveAttendance(Dictionary<int, bool> Attendance, string SubjectName, int FacultyID)
-        //    {
-        //    var today = DateTime.Today;
 
-        //    // Check if attendance already exists for today and this subject
-        //    var existingAttendance = await _context.tblAttendence
-        //        .Where(a => a.SubjectName == SubjectName && a.FacultyID == FacultyID && a.Date.Date == today)
-        //        .ToListAsync();
-
-        //    if (existingAttendance.Count > 0)
-        //        {
-        //        // Redirect to edit page with a message
-        //        TempData["Message"] = "Attendance already taken for today.";
-        //        return RedirectToAction("AbsentStudents", new { subjectName = SubjectName, facultyId = FacultyID });
-        //        }
-
-        //    foreach (var entry in Attendance)
-        //        {
-        //        var studentId = entry.Key;
-        //        var isPresent = entry.Value;
-
-        //        var attendance = new Attendance
-        //            {
-        //            Date = today,
-        //            StartTime = new TimeSpan(9, 0, 0),  // Set your actual start time
-        //            EndTime = new TimeSpan(10, 0, 0),   // Set your actual end time
-        //            SubjectName = SubjectName,
-        //            FacultyID = FacultyID,
-        //            StudentID = studentId,
-        //            Status = isPresent,
-        //            Topic = "Topic of the day"  // Set your actual topic
-        //            };
-
-        //        _context.tblAttendence.Add(attendance);
-        //        }
-
-        //    await _context.SaveChangesAsync();
-
-        //    // Redirect to the attendance list page
-        //    return RedirectToAction("AbsentStudents", new { subjectName = SubjectName, facultyId = FacultyID });
-        //    }
 
         public async Task<IActionResult> SaveAttendance(Dictionary<int, bool> Attendance, string SubjectName, int FacultyID)
             {
@@ -726,55 +758,6 @@ namespace SIS_Dev.Controllers
             return RedirectToAction("AbsentStudents", new { subjectName = SubjectName, facultyId = FacultyID });
             }
 
-
-        //public async Task<IActionResult> AbsentStudents(string subjectName, int facultyId)
-        //    {
-        //    // Fetch attendance records for the given subject and faculty
-        //    var attendanceRecords = await _context.tblAttendence
-        //        .Where(a => a.SubjectName == subjectName && a.FacultyID == facultyId)
-        //        .ToListAsync();
-
-        //    // Create a list to hold view models for attendance records
-        //    var attendanceViewModel = new List<AttendanceViewModel>();
-
-        //    // Iterate through each attendance record
-        //    foreach (var attendance in attendanceRecords)
-        //        {
-        //        // Fetch student details for the current attendance record
-        //        var student = await _context.tblStudent
-        //            .FirstOrDefaultAsync(s => s.StudentID == attendance.StudentID);
-
-        //        // Ensure student is found before proceeding
-        //        if (student != null)
-        //            {
-        //            // Create a view model instance and populate it
-        //            var viewModel = new AttendanceViewModel
-        //                {
-        //                AttendanceID = attendance.AttendanceID,
-        //                Date = attendance.Date,
-        //                StartTime = attendance.StartTime,
-        //                EndTime = attendance.EndTime,
-        //                SubjectName = attendance.SubjectName,
-        //                FacultyID = attendance.FacultyID,
-        //                StudentID = attendance.StudentID,
-        //                Status = attendance.Status,
-        //                Topic = attendance.Topic,
-        //                StudentFirstName = student.FirstName,
-        //                StudentLastName = student.LastName,
-
-        //                // Define the edit URL for each attendance record
-        //                EditUrl = Url.Action("EditAttendance", "Faculty", new { attendanceId = attendance.AttendanceID })
-        //                };
-
-        //            // Add the view model to the list
-        //            attendanceViewModel.Add(viewModel);
-        //            }
-        //        }
-
-        //    // Pass the list of view models to the view
-        //    ViewBag.Message = TempData["Message"];
-        //    return View(attendanceViewModel);
-        //    }
 
         public async Task<IActionResult> AbsentStudents(string subjectName, int facultyId)
             {
@@ -844,81 +827,11 @@ namespace SIS_Dev.Controllers
 
             return Json(viewModel);
             }
-        //public async Task<IActionResult> EditAttendance(int attendanceId)
-        //    {
-        //    var attendance = await _context.tblAttendence.FindAsync(attendanceId);
-
-        //    if (attendance == null)
-        //        {
-        //        return NotFound();
-        //        }
-
-        //    // Fetch student details for the current attendance record
-        //    var student = await _context.tblStudent
-        //        .FirstOrDefaultAsync(s => s.StudentID == attendance.StudentID);
-
-        //    if (student == null)
-        //        {
-        //        return NotFound();
-        //        }
-
-        //    var viewModel = new AttendanceViewModel
-        //        {
-        //        AttendanceID = attendance.AttendanceID,
-        //        Date = attendance.Date,
-        //        StartTime = attendance.StartTime,
-        //        EndTime = attendance.EndTime,
-        //        SubjectName = attendance.SubjectName,
-        //        FacultyID = attendance.FacultyID,
-        //        StudentID = attendance.StudentID,
-        //        Status = attendance.Status,
-        //        Topic = attendance.Topic,
-        //        StudentFirstName = student.FirstName,
-        //        StudentLastName = student.LastName
-        //        };
-
-        //    return View(viewModel);
-        //    }
 
 
 
-        //[HttpPost]
-        //public async Task<IActionResult> EditAttendance(AttendanceViewModel model)
-        //    {
-        //    if (!ModelState.IsValid)
-        //        {
-        //        // Return the view with validation errors if model state is invalid
-        //        return View(model);
-        //        }
 
-        //    try
-        //        {
-        //        // Find the attendance record in the database
-        //        var attendance = await _context.tblAttendence.FindAsync(model.AttendanceID);
 
-        //        if (attendance == null)
-        //            {
-        //            return NotFound();
-        //            }
-
-        //        // Update the attendance record with values from the view model
-        //        attendance.Status = model.Status;
-
-        //        // Save changes to the database
-        //        _context.Update(attendance);
-        //        await _context.SaveChangesAsync();
-
-        //        TempData["Message"] = "Attendance updated successfully.";
-
-        //        // Redirect to the attendance list action method
-        //        return RedirectToAction("AbsentStudents", new { subjectName = model.SubjectName, facultyId = model.FacultyID });
-        //        }
-        //    catch (DbUpdateConcurrencyException)
-        //        {
-        //        ModelState.AddModelError("", "Concurrency error occurred while saving the attendance record.");
-        //        return View(model);
-        //        }
-        //    }
 
         public async Task<IActionResult> EditAttendance(int attendanceId)
             {
@@ -955,6 +868,8 @@ namespace SIS_Dev.Controllers
 
             return View(viewModel);
             }
+
+
         [HttpPost]
         public async Task<IActionResult> EditAttendance(AttendanceViewModel model)
             {

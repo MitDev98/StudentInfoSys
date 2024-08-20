@@ -114,23 +114,34 @@ namespace SIS_Dev.Controllers
         // GET: Students/Create
         public IActionResult Create()
             {
-            // Filter institutes based on user role
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
             if (userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
+                // Get the admin details based on the logged-in user's email
+                var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+                if (admin != null)
                     {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name");
+                    ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name");
+                    ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName");
+                    ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => _context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)).Select(s => s.StandardID).Contains(f.StandardID)), "FacultyID", "FirstName");
                     }
                 }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
+                ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewBag.StandardID = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewBag.FacultyID = new SelectList(Enumerable.Empty<SelectListItem>());
+                }
 
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
-            ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewBag.StandardID = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewBag.FacultyID = new SelectList(Enumerable.Empty<SelectListItem>());
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
@@ -140,8 +151,10 @@ namespace SIS_Dev.Controllers
                 yearRanges.Add($"{year}-{endYear}");
                 }
             ViewBag.Years = new SelectList(yearRanges);
+
             return View();
             }
+
 
         // POST: Students/Create
         [HttpPost]
@@ -157,24 +170,32 @@ namespace SIS_Dev.Controllers
                 return RedirectToAction(nameof(Index));
                 }
 
-            // If we got this far, something failed, redisplay the form
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
             if (userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
+                var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+                if (admin != null)
                     {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", student.InstituteID);
+                    ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", student.CourseID);
+                    ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", student.StandardID);
+                    ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => _context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)).Select(s => s.StandardID).Contains(f.StandardID)), "FacultyID", "FirstName", student.FacultyID);
                     }
                 }
+            else
+                {
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
 
-
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
-            ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
             for (int year = 2000; year <= currentYear; year += 1)
@@ -183,8 +204,11 @@ namespace SIS_Dev.Controllers
                 yearRanges.Add($"{year}-{endYear}");
                 }
             ViewBag.Years = new SelectList(yearRanges, student.Year);
+
             return View(student);
             }
+
+
 
         // GET: Students/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -199,11 +223,30 @@ namespace SIS_Dev.Controllers
                 {
                 return NotFound();
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
-            ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
 
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && (userRole == "Admin"))
+                {
+                // For logged-in admin, filter by their institute
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
+
+            // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
             for (int year = 2000; year <= currentYear; year += 1)
@@ -248,13 +291,32 @@ namespace SIS_Dev.Controllers
                     }
                 return RedirectToAction(nameof(Index));
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
-            ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && (userRole == "Admin"))
+                {
+                // For logged-in admin, filter by their institute
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
 
             return View(student);
             }
+
 
         // GET: Students/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -270,10 +332,27 @@ namespace SIS_Dev.Controllers
                 {
                 return NotFound();
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
-            ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
-            ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && (userRole == "Admin"))
+                {
+                // For logged-in admin, filter by their institute
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => _context.tblCourse.Where(c => c.InstituteID == instituteID).Select(c => c.CourseID).Contains(s.CourseID)), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", student.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == student.InstituteID), "CourseID", "Name", student.CourseID);
+                ViewBag.StandardID = new SelectList(_context.tblStandard.Where(s => s.CourseID == student.CourseID), "StandardID", "StandardName", student.StandardID);
+                ViewBag.FacultyID = new SelectList(_context.tblFaculties.Where(f => f.StandardID == student.StandardID), "FacultyID", "FirstName", student.FacultyID);
+                }
 
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;

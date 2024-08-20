@@ -42,79 +42,85 @@ namespace SIS_Dev.Controllers
 
 
 
-        // GET: Faculty/Create
+
+
         public IActionResult Create()
             {
-
-            // Filter institutes based on user role
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
-            if (userRole == "Admin")
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
-                    {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
-                    }
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name");
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name");
+
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
-            ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>());
+            else
+                {
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
+                ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>()); // Initially empty
+
+                }
 
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
-            for (int year = 2000; year <= currentYear; year += 1)
+            for (int year = 2000; year <= currentYear; year++)
                 {
                 var endYear = Math.Min(year + 1, currentYear);
                 yearRanges.Add($"{year}-{endYear}");
                 }
             ViewBag.Years = new SelectList(yearRanges);
+
             return View();
             }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Standard standard)
+        public async Task<IActionResult> Create(Standard faculty)
             {
-
-
             if (ModelState.IsValid)
                 {
-                standard.CreatedBy = DateTime.Now;
-                _context.tblStandard.Add(standard);
+                faculty.CreatedBy = DateTime.Now;
+                _context.tblStandard.Add(faculty);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "standard inserted successfully!";
+                TempData["SuccessMessage"] = "Faculty created successfully!";
                 return RedirectToAction(nameof(Index));
                 }
 
-            // If we got this far, something failed, redisplay the form
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
 
-            if (userRole == "Admin")
+            if (admin != null && userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
-                    {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
-                    }
-                }
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", faculty.CourseID);
 
-            // Re-populate the dropdowns in case of a validation error
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", standard.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == standard.InstituteID), "CourseID", "Name", standard.CourseID);
+                }
+            else
+                {
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", faculty.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == faculty.InstituteID), "CourseID", "Name", faculty.CourseID);
+
+                }
 
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
-            for (int year = 2000; year <= currentYear; year += 1)
+            for (int year = 2000; year <= currentYear; year++)
                 {
                 var endYear = Math.Min(year + 1, currentYear);
                 yearRanges.Add($"{year}-{endYear}");
                 }
-            ViewBag.Years = new SelectList(yearRanges, standard.Year);
-            return View(standard);
+            ViewBag.Years = new SelectList(yearRanges, faculty.Year);
+
+            return View(faculty);
             }
+
 
         public JsonResult GetCourses(int instituteId)
             {
@@ -136,21 +142,24 @@ namespace SIS_Dev.Controllers
                 {
                 return NotFound();
                 }
-            // Filter institutes based on user role
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
-            if (userRole == "Admin")
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
+
+            if (admin != null && userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
-                    {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
-                    }
-                }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", standard.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == standard.InstituteID), "CourseID", "Name", standard.CourseID);
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name");
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name");
 
+                }
+            else
+                {
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name");
+                ViewBag.CourseID = new SelectList(Enumerable.Empty<SelectListItem>()); // Initially empty
+
+                }
             // Generate year ranges from 2000 to the current year
             var currentYear = DateTime.Now.Year;
             var yearRanges = new List<string>();
@@ -199,20 +208,23 @@ namespace SIS_Dev.Controllers
                     }
                 return RedirectToAction(nameof(Index));
                 }
-            // Filter institutes based on user role
             var userRole = HttpContext.Session.GetString("UserRole");
-            var institutesQuery = _context.tblInstitute.AsQueryable();
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var admin = _context.tblAdmin.FirstOrDefault(a => a.Email == userEmail);
 
-            if (userRole == "Admin")
+            if (admin != null && userRole == "Admin")
                 {
-                var instituteID = HttpContext.Session.GetInt32("InstituteID");
-                if (instituteID.HasValue)
-                    {
-                    institutesQuery = institutesQuery.Where(c => c.InstituteID == instituteID.Value);
-                    }
+                var instituteID = admin.InstituteID;
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute.Where(i => i.InstituteID == instituteID), "InstituteID", "Name", standard.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == instituteID), "CourseID", "Name", standard.CourseID);
+
                 }
-            ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", standard.InstituteID);
-            ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == standard.InstituteID), "CourseID", "Name", standard.CourseID);
+            else
+                {
+                ViewBag.InstituteID = new SelectList(_context.tblInstitute, "InstituteID", "Name", standard.InstituteID);
+                ViewBag.CourseID = new SelectList(_context.tblCourse.Where(c => c.InstituteID == standard.InstituteID), "CourseID", "Name", standard.CourseID);
+
+                }
 
             return View(standard);
             }

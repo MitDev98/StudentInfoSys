@@ -73,15 +73,49 @@ namespace SIS_Dev.Controllers
             return Json(faculties);
             }
 
+
         // GET: Timetable/Create
         public async Task<IActionResult> Create()
             {
-            // Populate dropdown lists for the create view
-            ViewData["Courses"] = new SelectList(await _context.tblCourse.ToListAsync(), "CourseID", "Name");
-            ViewData["Faculties"] = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewData["Subjects"] = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewData["Standards"] = new SelectList(Enumerable.Empty<SelectListItem>());
-            ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name");
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (userRole == "Admin")
+                {
+                // Get the admin details based on the logged-in user's email
+                var admin = await _context.tblAdmin.FirstOrDefaultAsync(a => a.Email == userEmail);
+
+                if (admin != null)
+                    {
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewData["Institutes"] = new SelectList(await _context.tblInstitute.Where(i => i.InstituteID == instituteID).ToListAsync(), "InstituteID", "Name");
+                    ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == instituteID).ToListAsync(), "CourseID", "Name");
+                    ViewData["Standards"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                    ViewData["Subjects"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                    ViewData["Faculties"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                    }
+                }
+            else
+                {
+                // SuperAdmin or other roles, show all options
+                ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name");
+                ViewData["Courses"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewData["Standards"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewData["Subjects"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                ViewData["Faculties"] = new SelectList(Enumerable.Empty<SelectListItem>());
+                }
+
+            // Generate year ranges from 2000 to the current year
+            var currentYear = DateTime.Now.Year;
+            var yearRanges = new List<string>();
+            for (int year = 2000; year <= currentYear; year++)
+                {
+                var endYear = Math.Min(year + 1, currentYear);
+                yearRanges.Add($"{year}-{endYear}");
+                }
+            ViewData["Years"] = new SelectList(yearRanges);
 
             return View();
             }
@@ -95,6 +129,7 @@ namespace SIS_Dev.Controllers
                 {
                 if (await IsTimeSlotAvailable(timetable))
                     {
+                    timetable.CreatedBy = DateTime.Now;
                     _context.Add(timetable);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -105,16 +140,48 @@ namespace SIS_Dev.Controllers
                     }
                 }
 
-            // Re-populate dropdown lists in case of validation failure
-            ViewData["Courses"] = new SelectList(await _context.tblCourse.ToListAsync(), "CourseID", "Name", timetable.CourseID);
-            ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
-            ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.CourseID == timetable.CourseID && s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
-            ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
-            ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
 
+            if (userRole == "Admin")
+                {
+                var admin = await _context.tblAdmin.FirstOrDefaultAsync(a => a.Email == userEmail);
+
+                if (admin != null)
+                    {
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewData["Institutes"] = new SelectList(await _context.tblInstitute.Where(i => i.InstituteID == instituteID).ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                    ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == instituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                    ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                    ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                    ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                    }
+                }
+            else
+                {
+                // SuperAdmin or other roles
+                ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == timetable.InstituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                }
+
+            // Generate year ranges from 2000 to the current year
+            var currentYear = DateTime.Now.Year;
+            var yearRanges = new List<string>();
+            for (int year = 2000; year <= currentYear; year++)
+                {
+                var endYear = Math.Min(year + 1, currentYear);
+                yearRanges.Add($"{year}-{endYear}");
+                }
+            ViewData["Years"] = new SelectList(yearRanges, timetable.Year);
 
             return View(timetable);
             }
+
 
 
         // Other methods...
@@ -132,12 +199,46 @@ namespace SIS_Dev.Controllers
                 return NotFound();
                 }
 
-            // Populate dropdowns
-            ViewData["Courses"] = new SelectList(await _context.tblCourse.ToListAsync(), "CourseID", "Name", timetable.CourseID);
-            ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
-            ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.CourseID == timetable.CourseID && s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
-            ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
-            ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+
+
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (userRole == "Admin")
+                {
+                var admin = await _context.tblAdmin.FirstOrDefaultAsync(a => a.Email == userEmail);
+
+                if (admin != null)
+                    {
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewData["Institutes"] = new SelectList(await _context.tblInstitute.Where(i => i.InstituteID == instituteID).ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                    ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == instituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                    ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                    ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                    ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                    }
+                }
+            else
+                {
+                // SuperAdmin or other roles
+                ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == timetable.InstituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                }
+
+            // Generate year ranges from 2000 to the current year
+            var currentYear = DateTime.Now.Year;
+            var yearRanges = new List<string>();
+            for (int year = 2000; year <= currentYear; year++)
+                {
+                var endYear = Math.Min(year + 1, currentYear);
+                yearRanges.Add($"{year}-{endYear}");
+                }
+            ViewData["Years"] = new SelectList(yearRanges);
 
 
             return View(timetable);
@@ -181,11 +282,44 @@ namespace SIS_Dev.Controllers
                     }
                 }
 
-            ViewData["Courses"] = new SelectList(await _context.tblCourse.ToListAsync(), "CourseID", "Name", timetable.CourseID);
-            ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
-            ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.CourseID == timetable.CourseID && s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
-            ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
-            ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (userRole == "Admin")
+                {
+                var admin = await _context.tblAdmin.FirstOrDefaultAsync(a => a.Email == userEmail);
+
+                if (admin != null)
+                    {
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewData["Institutes"] = new SelectList(await _context.tblInstitute.Where(i => i.InstituteID == instituteID).ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                    ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == instituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                    ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                    ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                    ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                    }
+                }
+            else
+                {
+                // SuperAdmin or other roles
+                ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == timetable.InstituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                }
+
+            // Generate year ranges from 2000 to the current year
+            var currentYear = DateTime.Now.Year;
+            var yearRanges = new List<string>();
+            for (int year = 2000; year <= currentYear; year++)
+                {
+                var endYear = Math.Min(year + 1, currentYear);
+                yearRanges.Add($"{year}-{endYear}");
+                }
+            ViewData["Years"] = new SelectList(yearRanges);
 
 
             return View(timetable);
@@ -210,15 +344,50 @@ namespace SIS_Dev.Controllers
                 {
                 return NotFound();
                 }
-            // If ModelState is not valid, repopulate dropdowns and return to view
-            ViewData["Courses"] = new SelectList(await _context.tblCourse.ToListAsync(), "CourseID", "Name", timetable.CourseID);
-            ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
-            ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.CourseID == timetable.CourseID && s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
-            ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
-            ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (userRole == "Admin")
+                {
+                var admin = await _context.tblAdmin.FirstOrDefaultAsync(a => a.Email == userEmail);
+
+                if (admin != null)
+                    {
+                    var instituteID = admin.InstituteID;
+
+                    // Filter dropdowns by the logged-in admin's institute
+                    ViewData["Institutes"] = new SelectList(await _context.tblInstitute.Where(i => i.InstituteID == instituteID).ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                    ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == instituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                    ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                    ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                    ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                    }
+                }
+            else
+                {
+                // SuperAdmin or other roles
+                ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name", timetable.InstituteID);
+                ViewData["Courses"] = new SelectList(await _context.tblCourse.Where(c => c.InstituteID == timetable.InstituteID).ToListAsync(), "CourseID", "Name", timetable.CourseID);
+                ViewData["Standards"] = new SelectList(await _context.tblStandard.Where(s => s.CourseID == timetable.CourseID).ToListAsync(), "StandardID", "StandardName", timetable.StandardID);
+                ViewData["Subjects"] = new SelectList(await _context.tblSubject.Where(s => s.StandardID == timetable.StandardID).ToListAsync(), "SubjectID", "SubjectName", timetable.SubjectID);
+                ViewData["Faculties"] = new SelectList(await _context.tblFaculties.Where(f => f.SubjectID == timetable.SubjectID).ToListAsync(), "FacultyID", "FirstName", timetable.FacultyID);
+                }
+            // Generate year ranges from 2000 to the current year
+            var currentYear = DateTime.Now.Year;
+            var yearRanges = new List<string>();
+            for (int year = 2000; year <= currentYear; year++)
+                {
+                var endYear = Math.Min(year + 1, currentYear);
+                yearRanges.Add($"{year}-{endYear}");
+                }
+            ViewData["Years"] = new SelectList(yearRanges);
+
 
             return View(timetable);
             }
+
+
+
         // POST: Timetable/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -235,18 +404,21 @@ namespace SIS_Dev.Controllers
             return RedirectToAction(nameof(Index));
             }
 
-
-
         public async Task<IActionResult> Index()
             {
             var userRole = HttpContext.Session.GetString("UserRole");
             var instituteID = HttpContext.Session.GetInt32("InstituteID");
+
+            IQueryable<Course> courses = _context.tblCourse.AsQueryable();
+            IQueryable<Standard> standards = _context.tblStandard.AsQueryable();
             IQueryable<Timetable> timetables = _context.tblTimetable.AsQueryable();
 
             if (userRole == "Admin")
                 {
                 if (instituteID.HasValue)
                     {
+                    courses = courses.Where(c => c.InstituteID == instituteID.Value);
+                    standards = standards.Where(s => s.InstituteID == instituteID.Value);
                     timetables = timetables.Where(t => t.InstituteID == instituteID.Value);
                     }
                 }
@@ -273,27 +445,39 @@ namespace SIS_Dev.Controllers
                     EndTime = t.EndTime,
                     InstituteID = t.InstituteID,
                     Name = i.Name,
-
+                    Year = t.Year,
                     }).ToListAsync();
 
-            ViewData["Courses"] = new SelectList(await _context.tblCourse.ToListAsync(), "CourseID", "Name");
+            ViewData["Courses"] = new SelectList(await courses.ToListAsync(), "CourseID", "Name");
             ViewData["Standards"] = new List<SelectListItem>(); // Initialize empty list for standards
-            ViewData["Institutes"] = new SelectList(await _context.tblInstitute.ToListAsync(), "InstituteID", "Name");
+            ViewData["Years"] = await _context.tblTimetable.Select(c => c.Year).Distinct().ToListAsync();
 
             return View(timetableList);
             }
 
-
         [HttpGet]
-        public JsonResult GetStandards(int courseId)
+        public async Task<JsonResult> GetStandards(int courseId)
             {
-            var standards = _context.tblStandard
-                .Where(s => s.CourseID == courseId) // Ensure tblStandard has CourseID
-                .Select(s => new { value = s.StandardID, text = s.StandardName }) // Ensure StandardName is used as value
-                .ToList();
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var instituteID = HttpContext.Session.GetInt32("InstituteID");
 
-            return Json(standards);
+            IQueryable<Standard> standards = _context.tblStandard.Where(s => s.CourseID == courseId);
+
+            if (userRole == "Admin" && instituteID.HasValue)
+                {
+                standards = standards.Where(s => s.InstituteID == instituteID.Value);
+                }
+
+            var standardsList = await standards
+                .Select(s => new SelectListItem
+                    {
+                    Value = s.StandardID.ToString(),
+                    Text = s.StandardName
+                    }).ToListAsync();
+
+            return Json(standardsList);
             }
+
 
         public async Task<IActionResult> Display(int courseId, string standardName, int standardid)
             {
@@ -327,7 +511,4 @@ namespace SIS_Dev.Controllers
             }
 
         }
-
-
-
     }

@@ -119,7 +119,44 @@
             </div>
         </form>
     </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#InstituteID').change(function () {
+                var instituteId = $(this).val();
+                if (instituteId) {
+                    $.getJSON('/Faculty/GetCourses', { instituteId: instituteId }, function (data) {
+                        var courseSelect = $('#CourseID');
+                        courseSelect.empty();
+                        courseSelect.append($('<option>').text('Select Course').attr('value', ''));
+                        $.each(data, function (index, item) {
+                            courseSelect.append($('<option>').text(item.name).attr('value', item.courseID));
+                        });
+                    });
+                } else {
+                    $('#CourseID').empty().append($('<option>').text('Select Course').attr('value', ''));
+                    $('#StandardID').empty().append($('<option>').text('Select Standard').attr('value', ''));
+                }
+            });
 
+            $('#CourseID').change(function () {
+                var courseId = $(this).val();
+                if (courseId) {
+                    $.getJSON('/Faculty/GetStandards', { courseId: courseId }, function (data) {
+                        var standardSelect = $('#StandardID');
+                        standardSelect.empty();
+                        standardSelect.append($('<option>').text('Select Standard').attr('value', ''));
+                        $.each(data, function (index, item) {
+                            standardSelect.append($('<option>').text(item.name).attr('value', item.standardID));
+                        });
+                    });
+                } else {
+                    $('#StandardID').empty().append($('<option>').text('Select Standard').attr('value', ''));
+                }
+            });
+
+
+        });
+    </script>
 </body>
 </html>
 
